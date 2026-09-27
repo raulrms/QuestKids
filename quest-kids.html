@@ -544,7 +544,31 @@
     { id: 'r6', icon: '🎬', name: 'Elegir la peli del viernes', desc: 'Tú eliges la película o serie familiar.', cost: 50, tipo: '🎁 Premio real' },
   ];
 
-  function todayKey() { return new Date().toISOString().slice(0, 10); }
+  function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function dateFromKey(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function addDays(key, amount) {
+    const d = dateFromKey(key);
+    d.setDate(d.getDate() + amount);
+    return todayKeyFromDate(d);
+  }
+
+  function todayKeyFromDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
 
   function isoWeekKey(d) {
     const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -561,6 +585,7 @@
       xp: 0,
       totalCoinsEarned: 0,
       coinsSpent: 0,
+      coinsReversed: 0,
       completedToday: {},
       lastDay: todayKey(),
       completedEpicDaily: {},
@@ -568,12 +593,49 @@
       redeemHistory: [],
       weekKey: isoWeekKey(new Date()),
       perfectDays: 0,
+      perfectDaysByDate: {},
       bonusAwardedForWeek: false,
     };
   }
 
   function availableCoins(hero) {
-    return Math.max(0, hero.totalCoinsEarned - hero.coinsSpent);
+    return Math.max(0, hero.totalCoinsEarned - hero.coinsSpent - hero.coinsReversed);
+  }
+
+  function isPerfectDay(hero, dateKey) {
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    if (!dailyForHero.length) return false;
+    if (dateKey === hero.lastDay) {
+      return dailyForHero.every(m => hero.completedToday[m.id]);
+    }
+    return !!hero.perfectDaysByDate[dateKey];
+  }
+
+  function refreshStreak(hero) {
+    const currentWeek = isoWeekKey(new Date());
+    let cursor = todayKey();
+    let count = 0;
+
+    // Un día sin registro rompe la racha: los días que la app estuvo cerrada no se inventan.
+    for (let i = 0; i < 7; i++) {
+      if (isoWeekKey(dateFromKey(cursor)) !== currentWeek) break;
+      if (!isPerfectDay(hero, cursor)) break;
+      count++;
+      cursor = addDays(cursor, -1);
+    }
+    hero.perfectDays = count;
+    return count;
+  }
+
+  function registerPerfectDayIfNeeded(hero) {
+    const today = todayKey();
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    if (dailyForHero.length && dailyForHero.every(m => hero.completedToday[m.id])) {
+      hero.perfectDaysByDate[today] = true;
+    } else {
+      delete hero.perfectDaysByDate[today];
+    }
+    refreshStreak(hero);
   }
 
   function loadData() {
@@ -587,6 +649,10 @@
             hero.totalCoinsEarned = hero.coins || 0;
             hero.coinsSpent = 0;
             delete hero.coins;
+          }
+          if (hero.coinsReversed === undefined) hero.coinsReversed = 0;
+          if (!hero.perfectDaysByDate || typeof hero.perfectDaysByDate !== 'object') {
+            hero.perfectDaysByDate = {};
           }
           // Migración: versión anterior guardaba las misiones épicas como "hechas para siempre"
           // en completedSpecial. Las tratamos como ya completadas esta semana (no vuelven a dar
@@ -625,29 +691,26 @@
   function resetIfNewDay(hero) {
     const t = todayKey();
     if (hero.lastDay !== t) {
-      const heroId = data.activeHero;
-      const dailyForHero = missionsForHero(DAILY_MISSIONS, heroId);
-      const allDoneYesterday = dailyForHero.every(m => hero.completedToday[m.id]);
-
-      const wk = isoWeekKey(new Date());
-      if (hero.weekKey !== wk) {
-        hero.weekKey = wk;
-        hero.perfectDays = 0;
-        hero.bonusAwardedForWeek = false;
-        hero.completedEpicWeekly = {};
-      }
-      if (allDoneYesterday && dailyForHero.length > 0) {
-        hero.perfectDays = Math.min(7, hero.perfectDays + 1);
-      }
-      if (hero.perfectDays >= 7 && !hero.bonusAwardedForWeek) {
-        hero.xp += 100;
-        hero.totalCoinsEarned += 50;
-        hero.bonusAwardedForWeek = true;
-        pendingWeeklyBonus = true;
-      }
       hero.completedToday = {};
       hero.completedEpicDaily = {};
       hero.lastDay = t;
+    }
+
+    const wk = isoWeekKey(new Date());
+    if (hero.weekKey !== wk) {
+      hero.weekKey = wk;
+      hero.perfectDays = 0;
+      hero.bonusAwardedForWeek = false;
+      hero.completedEpicWeekly = {};
+    }
+
+    refreshStreak(hero);
+
+    if (hero.perfectDays >= 7 && !hero.bonusAwardedForWeek) {
+      hero.xp += 100;
+      hero.totalCoinsEarned += 50;
+      hero.bonusAwardedForWeek = true;
+      pendingWeeklyBonus = true;
     }
   }
 
@@ -842,6 +905,7 @@
     hero.xp += m.xp;
     hero.totalCoinsEarned += m.coins;
     hero.completedToday[id] = true;
+    registerPerfectDayIfNeeded(hero);
     const afterLevel = levelInfo(hero.xp).level;
     render();
     if (afterLevel > beforeLevel) showToast('¡SUBISTE A NIVEL ' + afterLevel + '!');
@@ -854,8 +918,9 @@
     if (!m) return;
     const beforeLevel = levelInfo(hero.xp).level;
     hero.xp = Math.max(0, hero.xp - m.xp);
-    hero.totalCoinsEarned = Math.max(0, hero.totalCoinsEarned - m.coins);
+    hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
     delete hero.completedToday[id];
+    registerPerfectDayIfNeeded(hero);
     const afterLevel = levelInfo(hero.xp).level;
     render();
     showToast(afterLevel < beforeLevel ? 'Misión deshecha — bajaste a nivel ' + afterLevel : 'Misión deshecha');
@@ -884,7 +949,7 @@
     if (!store[id]) return;
     const beforeLevel = levelInfo(hero.xp).level;
     hero.xp = Math.max(0, hero.xp - m.xp);
-    hero.totalCoinsEarned = Math.max(0, hero.totalCoinsEarned - m.coins);
+    hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
     delete store[id];
     const afterLevel = levelInfo(hero.xp).level;
     render();
