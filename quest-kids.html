@@ -1,1 +1,1034 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quest Kids — RPG de Hábitos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F2E8D2;
+    --parchment-dark: #E4D3AC;
+    --ink: #3D2A1A;
+    --wood: #6B4226;
+    --wood-dark: #4A2C17;
+    --gold: #C9A227;
+    --gold-light: #E8C766;
+    --forest: #3F6C4C;
+    --forest-dark: #2C4D36;
+    --ember: #B24A34;
+    --sky: #3B6E8F;
+    --paper-shadow: rgba(61,42,26,0.25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.15), transparent 40%),
+      linear-gradient(180deg, #4A6B4E 0%, #2C4D36 100%);
+    padding: 24px 16px 60px;
+  }
+
+  .layout {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .board { max-width: 780px; flex: 1 1 600px; margin: 0; min-width: 0; }
+
+  .sidebar {
+    width: 220px;
+    flex: 0 0 220px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .sidebar h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--gold-light);
+    text-shadow: 2px 2px 0 var(--wood-dark);
+    margin: 0 0 10px;
+    text-align: center;
+  }
+
+  #playerSidebar { display: flex; flex-direction: column; gap: 10px; }
+
+  .mini-card {
+    background: var(--parchment);
+    border: 3px solid var(--wood-dark);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--paper-shadow);
+    transition: transform 0.12s ease;
+    text-align: left;
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+  }
+  .mini-card:hover { transform: translateY(-2px); }
+  .mini-card.active { border-color: var(--gold); background: var(--gold-light); }
+
+  .mini-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--parchment-dark);
+    border: 2px solid var(--wood-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex-shrink: 0;
+  }
+
+  .mini-info { flex: 1; min-width: 0; }
+  .mini-name { font-weight: 800; font-size: 13px; }
+  .mini-level { font-size: 10px; color: var(--wood); font-weight: 700; }
+  .mini-xp-outer {
+    margin-top: 4px; height: 6px; border-radius: 4px;
+    background: var(--parchment-dark);
+    border: 1px solid var(--wood-dark);
+    overflow: hidden;
+  }
+  .mini-xp-inner { height: 100%; background: var(--forest); }
+  .mini-coins { font-size: 11px; font-weight: 800; color: var(--wood); margin-top: 2px; }
+
+  @media (max-width: 880px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; position: static; }
+    #playerSidebar { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+    .mini-card { min-width: 170px; flex: 0 0 auto; }
+  }
+
+  header.sheet {
+    background: var(--parchment);
+    border: 4px solid var(--wood-dark);
+    border-radius: 14px;
+    box-shadow: 0 10px 0 var(--paper-shadow), 0 14px 24px rgba(0,0,0,0.35);
+    padding: 20px 22px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    color: var(--wood-dark);
+  }
+
+  select#heroSelect {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 2px solid var(--wood);
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .character-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    border: 4px solid var(--wood-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    flex-shrink: 0;
+  }
+
+  .stats { flex: 1; min-width: 200px; }
+
+  .name-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .hero-name { font-weight: 800; font-size: 20px; }
+  .hero-class { font-size: 13px; color: var(--wood); font-weight: 700; }
+
+  .level-tag {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    background: var(--wood-dark);
+    color: var(--gold-light);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .title-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--forest-dark);
+    background: #DCE8DA;
+    border: 2px solid var(--forest-dark);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  .xp-bar-outer {
+    margin-top: 8px;
+    background: var(--parchment-dark);
+    border: 2px solid var(--wood-dark);
+    border-radius: 8px;
+    height: 18px;
+    overflow: hidden;
+  }
+
+  .xp-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forest), #6FA37B);
+    width: 0%;
+    transition: width 0.6s ease;
+  }
+
+  .xp-caption { font-size: 12px; margin-top: 4px; color: var(--wood); font-weight: 700; }
+
+  .coin-count {
+    font-weight: 800;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .streak-line {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wood);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .streak-dots { display: flex; gap: 4px; }
+  .streak-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--parchment-dark);
+    border: 2px solid var(--wood-dark);
+  }
+  .streak-dot.filled { background: var(--gold); }
+
+  .board-heading { margin: 26px 0 12px; text-align: center; }
+  .board-heading h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--gold-light);
+    text-shadow: 2px 2px 0 var(--wood-dark);
+    margin: 0;
+  }
+  .board-heading p {
+    color: #DCE8DA;
+    font-size: 12px;
+    margin: 6px 0 0;
+    opacity: 0.85;
+  }
+
+  .quests { display: grid; gap: 12px; }
+
+  .quest-card {
+    background: var(--parchment);
+    border: 3px solid var(--wood-dark);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 5px 0 var(--paper-shadow);
+  }
+
+  .quest-card.done { background: #DCE8DA; border-color: var(--forest-dark); }
+  .quest-card.epic { border-color: var(--ember); }
+
+  .quest-icon { font-size: 24px; width: 36px; text-align: center; flex-shrink: 0; }
+  .quest-info { flex: 1; min-width: 0; }
+  .quest-name { font-weight: 800; font-size: 15px; }
+  .quest-name.done { text-decoration: line-through; color: var(--forest-dark); }
+  .quest-desc { font-size: 12px; color: var(--wood); margin-top: 2px; }
+
+  .quest-meta {
+    font-size: 12px;
+    color: var(--wood);
+    margin-top: 4px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: var(--parchment-dark);
+    font-weight: 700;
+  }
+  .tag.epic { background: #F3D9CE; color: var(--ember); }
+
+  .quest-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--forest);
+    color: white;
+    box-shadow: 0 3px 0 var(--forest-dark);
+    flex-shrink: 0;
+  }
+  .quest-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--forest-dark); }
+  .quest-btn.done-btn { background: var(--parchment-dark); color: var(--forest-dark); box-shadow: none; cursor: default; }
+  .quest-btn.undo-btn { background: var(--ember); box-shadow: 0 3px 0 #7a3121; }
+
+  .empty-note {
+    text-align: center;
+    color: #DCE8DA;
+    font-size: 13px;
+    opacity: 0.8;
+    padding: 10px;
+  }
+
+  /* Reward shop */
+  .rewards { display: grid; gap: 12px; }
+  .reward-card {
+    background: var(--parchment);
+    border: 3px solid var(--sky);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 5px 0 var(--paper-shadow);
+  }
+  .reward-icon { font-size: 24px; width: 36px; text-align: center; }
+  .reward-info { flex: 1; }
+  .reward-name { font-weight: 800; font-size: 15px; }
+  .reward-desc { font-size: 12px; color: var(--wood); margin-top: 2px; }
+  .reward-cost { font-size: 12px; font-weight: 800; color: var(--sky); margin-top: 4px; }
+  .reward-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--sky);
+    color: white;
+    box-shadow: 0 3px 0 #274d63;
+    flex-shrink: 0;
+  }
+  .reward-btn:disabled { background: var(--parchment-dark); color: var(--wood); box-shadow: none; cursor: not-allowed; opacity: 0.7; }
+
+  .history {
+    margin-top: 10px;
+    background: rgba(242,232,210,0.55);
+    border: 2px dashed #DCE8DA;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #DCE8DA;
+  }
+  .history strong { color: var(--gold-light); }
+  .history ul { margin: 6px 0 0; padding-left: 18px; }
+
+  /* Level table */
+  details.levels {
+    margin-top: 24px;
+    background: rgba(242,232,210,0.9);
+    border: 3px solid var(--wood-dark);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  details.levels summary {
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--wood-dark);
+  }
+  table.level-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  table.level-table th, table.level-table td { border-bottom: 1px solid var(--parchment-dark); padding: 6px 4px; text-align: left; }
+  table.level-table th { color: var(--wood); }
+
+  footer.note { text-align: center; color: #DCE8DA; font-size: 12px; margin-top: 30px; opacity: 0.8; }
+
+  .levelup-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--gold);
+    color: var(--wood-dark);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 3px solid var(--wood-dark);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: all 0.35s ease;
+    z-index: 10;
+    text-align: center;
+  }
+  .levelup-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 11px; }
+    .board-heading h2 { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>🧙 Héroes</h3>
+    <div id="playerSidebar"></div>
+  </aside>
+
+  <div class="board">
+  <header class="sheet">
+    <div class="title-row">
+      <h1>🏰 Quest Kids<br>RPG de Hábitos</h1>
+      <select id="heroSelect"></select>
+    </div>
+    <div class="character-row">
+      <div class="avatar" id="avatarEmoji">⚔️</div>
+      <div class="stats">
+        <div class="name-line">
+          <span class="hero-name" id="heroName">Helena</span>
+          <span class="hero-class" id="heroClass">⚔️ Guerrero</span>
+        </div>
+        <div class="name-line" style="margin-top:4px;">
+          <span class="level-tag" id="levelTag">NIVEL 1</span>
+          <span class="title-badge" id="titleBadge">Aprendiz 🌱</span>
+        </div>
+        <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar"></div></div>
+        <div class="xp-caption" id="xpCaption">0 / 100 XP</div>
+      </div>
+      <div class="coin-count">
+        🪙 <span id="coinCount">0</span>
+        <span style="font-size:11px; font-weight:700; color: var(--wood); white-space:normal;">disponibles<br>(<span id="totalCoinsEarned">0</span> ganadas en total)</span>
+      </div>
+    </div>
+    <div class="streak-line">
+      Racha semanal (días perfectos):
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+  </header>
+
+  <div class="board-heading">
+    <h2>⚔️ MISIONES DE HOY</h2>
+    <p>Hábitos y tareas recurrentes — se reinician cada día</p>
+  </div>
+  <div class="quests" id="dailyQuestList"></div>
+
+  <div class="board-heading">
+    <h2>🌟 MISIONES ÉPICAS</h2>
+    <p>Recompensa épica — cada una se reinicia según su propia frecuencia (diaria o semanal)</p>
+  </div>
+  <div class="quests" id="specialQuestList"></div>
+
+  <div class="board-heading">
+    <h2>🏆 TIENDA DE RECOMPENSAS</h2>
+    <p>Canjea tus monedas de oro por premios reales</p>
+  </div>
+  <div class="rewards" id="rewardList"></div>
+  <div class="history" id="redeemHistory"></div>
+
+  <details class="levels">
+    <summary>💎 Ver tabla de niveles y dificultad</summary>
+    <table class="level-table">
+      <tr><th>Nivel</th><th>XP necesaria</th><th>Título</th></tr>
+      <tr><td>1</td><td>0 XP</td><td>Aprendiz 🌱</td></tr>
+      <tr><td>2</td><td>100 XP</td><td>Aventurero ⚔️</td></tr>
+      <tr><td>3</td><td>250 XP</td><td>Veterano 🛡️</td></tr>
+      <tr><td>4</td><td>500 XP</td><td>Héroe 🌟</td></tr>
+      <tr><td>5</td><td>900 XP</td><td>Campeón 👑</td></tr>
+      <tr><td>6</td><td>1400 XP</td><td>Leyenda 🐉</td></tr>
+    </table>
+    <table class="level-table">
+      <tr><th>Dificultad</th><th>XP</th><th>Monedas</th></tr>
+      <tr><td>⭐ Fácil</td><td>+10 XP</td><td>+5 🪙</td></tr>
+      <tr><td>⭐⭐ Normal</td><td>+25 XP</td><td>+15 🪙</td></tr>
+      <tr><td>⭐⭐⭐ Épica</td><td>+50 XP</td><td>+30 🪙</td></tr>
+    </table>
+    <p style="font-size:12px; color: var(--wood); margin-top:8px;">🏆 Bonus semanal: completar TODAS las misiones diarias 7 días seguidos otorga +100 XP y +50 🪙 extra.</p>
+  </details>
+
+  <footer class="note">Los datos se guardan en este navegador y dispositivo.</footer>
+  </div>
+</div>
+
+<div class="levelup-toast" id="levelupToast">¡SUBISTE DE NIVEL!</div>
+
+<script>
+  const STORAGE_KEY = 'questKidsRPG';
+
+  const LEVELS = [
+    { level: 1, xp: 0,    title: 'Aprendiz 🌱' },
+    { level: 2, xp: 100,  title: 'Aventurero ⚔️' },
+    { level: 3, xp: 250,  title: 'Veterano 🛡️' },
+    { level: 4, xp: 500,  title: 'Héroe 🌟' },
+    { level: 5, xp: 900,  title: 'Campeón 👑' },
+    { level: 6, xp: 1400, title: 'Leyenda 🐉' },
+  ];
+
+  const CLASS_ICON = { '🧙 Mago': '🧙', '⚔️ Guerrero': '⚔️', '🏹 Arquero': '🏹', '🌿 Druida': '🌿' };
+
+  const HEROES_DEFAULT = [
+    { id: 'helena',  name: 'Helena',  clase: '⚔️ Guerrero' },
+    { id: 'sofia',   name: 'Sofía',   clase: '⚔️ Guerrero' },
+    { id: 'claudia', name: 'Claudia', clase: '🌿 Druida' },
+    { id: 'roberto', name: 'Roberto', clase: '⚔️ Guerrero' },
+  ];
+
+  // Misiones recurrentes (se reinician cada día)
+  const DAILY_MISSIONS = [
+    { id: 'm1',  icon: '🎨', name: 'Realizar una actividad creativa', desc: 'Dibuja, pinta, construye o inventa algo con tus manos.', tipo: '🧼 Hábito diario', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm2',  icon: '🎒', name: 'Preparar la mochila o materiales', desc: 'Deja todo listo la noche anterior para el día siguiente.', tipo: '🧼 Hábito diario', dificultad: 'Fácil', xp: 10, coins: 5, heroes: 'Todos' },
+    { id: 'm3',  icon: '📖', name: 'Leer entre 15 y 30 minutos', desc: 'Busca un lugar tranquilo y lee un rato.', tipo: '🧼 Hábito diario', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm4',  icon: '🛏️', name: 'Hacer la cama', desc: 'Tender la cama al levantarse cada mañana.', tipo: '🏠 Tarea del hogar', dificultad: 'Fácil', xp: 10, coins: 5, heroes: 'Todos' },
+    { id: 'm5',  icon: '🍽️', name: 'Ayudar con la mesa', desc: 'Poner o quitar la mesa sin que te lo pidan.', tipo: '🏠 Tarea del hogar', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm6',  icon: '🧹', name: 'Ordenar y recoger la habitación', desc: 'Recoger la ropa sucia y los juguetes del suelo.', tipo: '🏠 Tarea del hogar', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm7',  icon: '📝', name: 'Completar los deberes del día', desc: 'Terminar todos los deberes del día.', tipo: '📚 Deberes', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm8',  icon: '🚿', name: 'Ducharse sin que te lo digan', desc: 'Ducharse solo sin que nadie te lo recuerde.', tipo: '🧼 Hábito diario', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm9',  icon: '🧺', name: 'Llevar la ropa sucia al cesto', desc: 'Sin que te lo pidan.', tipo: '🏠 Tarea del hogar', dificultad: 'Fácil', xp: 10, coins: 5, heroes: 'Todos' },
+    { id: 'm10', icon: '📖', name: 'Leer 30 minutos', desc: 'Leer durante 30 minutos seguidos.', tipo: '🧼 Hábito diario', dificultad: 'Normal', xp: 25, coins: 15, heroes: ['roberto'] },
+    { id: 'm11', icon: '📵', name: 'Respetar el tiempo sin pantallas', desc: 'Sin quejarse.', tipo: '🧼 Hábito diario', dificultad: 'Normal', xp: 25, coins: 15, heroes: 'Todos' },
+    { id: 'm12', icon: '🗑️', name: 'Sacar la basura', desc: 'Sacar la bolsa y poner una nueva.', tipo: '🏠 Tarea del hogar', dificultad: 'Fácil', xp: 10, coins: 5, heroes: ['roberto', 'claudia'] },
+  ];
+
+  // Misiones épicas: cada una tiene una frecuencia propia de reinicio.
+  // 'diaria'  -> se puede completar una vez cada día (como las misiones normales, pero con recompensa épica)
+  // 'semanal' -> se puede completar una vez por semana (semana ISO, lunes a domingo)
+  const SPECIAL_MISSIONS = [
+    { id: 's1', icon: '📚', name: 'Misión épica: Estudio o repaso extra', desc: 'Estudiar o repasar un tema extra por tu cuenta.', tipo: '📚 Deberes', dificultad: 'Épica', frecuencia: 'diaria', xp: 50, coins: 30, heroes: 'Todos' },
+    { id: 's2', icon: '🌳', name: 'Actividad al aire libre en familia', desc: 'Salir a hacer una actividad al aire libre en familia.', tipo: '🧼 Hábito diario', dificultad: 'Épica', frecuencia: 'semanal', xp: 50, coins: 30, heroes: 'Todos' },
+    { id: 's3', icon: '🍳', name: 'Ayudar a cocinar', desc: 'Ayudar a preparar una comida o cena en familia.', tipo: '🏠 Tarea del hogar', dificultad: 'Normal', frecuencia: 'semanal', xp: 25, coins: 15, heroes: ['roberto'] },
+  ];
+
+  const REWARDS = [
+    { id: 'r1', icon: '📱', name: '30 min extra de pantalla', desc: 'Un día a elegir.', cost: 30, tipo: '💻 Digital' },
+    { id: 'r2', icon: '🍽️', name: 'Cena a tu elección', desc: 'Una noche especial comiendo lo que tú elijas.', cost: 80, tipo: '🎁 Premio real' },
+    { id: 'r3', icon: '🎁', name: 'Pequeño capricho sorpresa', desc: 'Un libro, juguete pequeño o capricho a acordar.', cost: 60, tipo: '🎁 Premio real' },
+    { id: 'r4', icon: '🗺️', name: 'Día de actividad especial', desc: 'Una excursión o actividad a elegir en familia.', cost: 100, tipo: '🎁 Premio real' },
+    { id: 'r5', icon: '🌙', name: 'Acostarse 30 min más tarde', desc: 'Un día de fin de semana.', cost: 40, tipo: '🎁 Premio real' },
+    { id: 'r6', icon: '🎬', name: 'Elegir la peli del viernes', desc: 'Tú eliges la película o serie familiar.', cost: 50, tipo: '🎁 Premio real' },
+  ];
+
+  function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function dateFromKey(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function addDays(key, amount) {
+    const d = dateFromKey(key);
+    d.setDate(d.getDate() + amount);
+    return todayKeyFromDate(d);
+  }
+
+  function todayKeyFromDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function isoWeekKey(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    return date.getUTCFullYear() + '-W' + weekNo;
+  }
+
+  function defaultHeroState(name, clase) {
+    return {
+      name, clase,
+      xp: 0,
+      totalCoinsEarned: 0,
+      coinsSpent: 0,
+      coinsReversed: 0,
+      completedToday: {},
+      lastDay: todayKey(),
+      completedEpicDaily: {},
+      completedEpicWeekly: {},
+      redeemHistory: [],
+      weekKey: isoWeekKey(new Date()),
+      perfectDays: 0,
+      perfectDaysByDate: {},
+      bonusAwardedForWeek: false,
+    };
+  }
+
+  function availableCoins(hero) {
+    return Math.max(0, hero.totalCoinsEarned - hero.coinsSpent - hero.coinsReversed);
+  }
+
+  function isPerfectDay(hero, dateKey) {
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    if (!dailyForHero.length) return false;
+    if (dateKey === hero.lastDay) {
+      return dailyForHero.every(m => hero.completedToday[m.id]);
+    }
+    return !!hero.perfectDaysByDate[dateKey];
+  }
+
+  function refreshStreak(hero) {
+    const currentWeek = isoWeekKey(new Date());
+    let cursor = todayKey();
+    let count = 0;
+
+    // Un día sin registro rompe la racha: los días que la app estuvo cerrada no se inventan.
+    for (let i = 0; i < 7; i++) {
+      if (isoWeekKey(dateFromKey(cursor)) !== currentWeek) break;
+      if (!isPerfectDay(hero, cursor)) break;
+      count++;
+      cursor = addDays(cursor, -1);
+    }
+    hero.perfectDays = count;
+    return count;
+  }
+
+  function registerPerfectDayIfNeeded(hero) {
+    const today = todayKey();
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    if (dailyForHero.length && dailyForHero.every(m => hero.completedToday[m.id])) {
+      hero.perfectDaysByDate[today] = true;
+    } else {
+      delete hero.perfectDaysByDate[today];
+    }
+    refreshStreak(hero);
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        // Migración: versiones anteriores solo guardaban "coins" (saldo ya neto).
+        Object.values(parsed.heroes || {}).forEach(hero => {
+          if (hero.totalCoinsEarned === undefined) {
+            hero.totalCoinsEarned = hero.coins || 0;
+            hero.coinsSpent = 0;
+            delete hero.coins;
+          }
+          if (hero.coinsReversed === undefined) hero.coinsReversed = 0;
+          if (!hero.perfectDaysByDate || typeof hero.perfectDaysByDate !== 'object') {
+            hero.perfectDaysByDate = {};
+          }
+          // Migración: versión anterior guardaba las misiones épicas como "hechas para siempre"
+          // en completedSpecial. Las tratamos como ya completadas esta semana (no vuelven a dar
+          // recompensa hasta el próximo ciclo) y dejamos las diarias listas para completarse hoy.
+          if (hero.completedEpicDaily === undefined || hero.completedEpicWeekly === undefined) {
+            hero.completedEpicDaily = {};
+            hero.completedEpicWeekly = Object.assign({}, hero.completedSpecial || {});
+            delete hero.completedSpecial;
+          }
+        });
+        return parsed;
+      } catch (e) { /* fall through */ }
+    }
+    const heroes = {};
+    HEROES_DEFAULT.forEach(h => { heroes[h.id] = defaultHeroState(h.name, h.clase); });
+    return { activeHero: 'helena', heroes };
+  }
+
+  function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+  let data = loadData();
+  function currentHero() { return data.heroes[data.activeHero]; }
+
+  function missionsForHero(list, heroId) {
+    return list.filter(m => m.heroes === 'Todos' || m.heroes.includes(heroId));
+  }
+
+  function levelInfo(xp) {
+    let current = LEVELS[0];
+    for (const l of LEVELS) { if (xp >= l.xp) current = l; }
+    const idx = LEVELS.indexOf(current);
+    const next = LEVELS[idx + 1] || null;
+    return { level: current.level, title: current.title, floor: current.xp, next };
+  }
+
+  function resetIfNewDay(hero) {
+    const t = todayKey();
+    if (hero.lastDay !== t) {
+      hero.completedToday = {};
+      hero.completedEpicDaily = {};
+      hero.lastDay = t;
+    }
+
+    const wk = isoWeekKey(new Date());
+    if (hero.weekKey !== wk) {
+      hero.weekKey = wk;
+      hero.perfectDays = 0;
+      hero.bonusAwardedForWeek = false;
+      hero.completedEpicWeekly = {};
+    }
+
+    refreshStreak(hero);
+
+    if (hero.perfectDays >= 7 && !hero.bonusAwardedForWeek) {
+      hero.xp += 100;
+      hero.totalCoinsEarned += 50;
+      hero.bonusAwardedForWeek = true;
+      pendingWeeklyBonus = true;
+    }
+  }
+
+  let pendingWeeklyBonus = false;
+  const confirmingUndo = new Set();
+  const confirmTimers = {};
+
+  function armUndoConfirm(id) {
+    confirmingUndo.add(id);
+    clearTimeout(confirmTimers[id]);
+    confirmTimers[id] = setTimeout(() => { confirmingUndo.delete(id); render(); }, 2500);
+    render();
+  }
+
+  function clearAllUndoConfirms() {
+    confirmingUndo.forEach(id => clearTimeout(confirmTimers[id]));
+    confirmingUndo.clear();
+  }
+
+  function renderHeroSelect() {
+    const sel = document.getElementById('heroSelect');
+    sel.innerHTML = '';
+    HEROES_DEFAULT.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h.id;
+      opt.textContent = h.name;
+      if (h.id === data.activeHero) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function render() {
+    const hero = currentHero();
+    resetIfNewDay(hero);
+
+    const info = levelInfo(hero.xp);
+    const floor = info.floor;
+    const ceil = info.next ? info.next.xp : floor + 500;
+    const span = ceil - floor;
+    const pct = info.next ? Math.min(100, ((hero.xp - floor) / span) * 100) : 100;
+
+    document.getElementById('heroName').textContent = hero.name;
+    document.getElementById('heroClass').textContent = hero.clase;
+    document.getElementById('avatarEmoji').textContent = CLASS_ICON[hero.clase] || '🧙';
+    document.getElementById('levelTag').textContent = 'NIVEL ' + info.level;
+    document.getElementById('titleBadge').textContent = info.title;
+    document.getElementById('xpBar').style.width = pct + '%';
+    document.getElementById('xpCaption').textContent = hero.xp + (info.next ? (' / ' + info.next.xp + ' XP') : ' XP (nivel máximo)');
+    document.getElementById('coinCount').textContent = availableCoins(hero);
+    document.getElementById('totalCoinsEarned').textContent = hero.totalCoinsEarned;
+
+    const dots = document.getElementById('streakDots');
+    dots.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const d = document.createElement('div');
+      d.className = 'streak-dot' + (i < hero.perfectDays ? ' filled' : '');
+      dots.appendChild(d);
+    }
+
+    renderDailyQuests(hero);
+    renderSpecialQuests(hero);
+    renderRewards(hero);
+    renderHistory(hero);
+    renderPlayerSidebar();
+
+    saveData();
+
+    if (pendingWeeklyBonus) {
+      pendingWeeklyBonus = false;
+      showToast('¡BONUS SEMANAL! +100 XP / +50 🪙');
+    }
+  }
+
+  function renderDailyQuests(hero) {
+    const list = document.getElementById('dailyQuestList');
+    list.innerHTML = '';
+    const missions = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    if (missions.length === 0) {
+      list.innerHTML = '<div class="empty-note">No hay misiones diarias asignadas a este héroe.</div>';
+      return;
+    }
+    missions.forEach(m => {
+      const isDone = !!hero.completedToday[m.id];
+      const card = document.createElement('div');
+      card.className = 'quest-card' + (isDone ? ' done' : '');
+      card.innerHTML =
+        '<div class="quest-icon">' + m.icon + '</div>' +
+        '<div class="quest-info">' +
+          '<div class="quest-name' + (isDone ? ' done' : '') + '">' + m.name + '</div>' +
+          '<div class="quest-desc">' + m.desc + '</div>' +
+          '<div class="quest-meta"><span class="tag">' + m.tipo + '</span><span>+' + m.xp + ' XP</span><span>+' + m.coins + ' 🪙</span></div>' +
+        '</div>' +
+        '<button class="quest-btn ' + (isDone ? 'undo-btn' : '') + '" data-daily="' + m.id + '">' +
+          (isDone ? (confirmingUndo.has(m.id) ? '¿Seguro? Toca de nuevo' : 'Deshacer ↩') : 'Completar') +
+        '</button>';
+      list.appendChild(card);
+    });
+  }
+
+  function renderSpecialQuests(hero) {
+    const list = document.getElementById('specialQuestList');
+    list.innerHTML = '';
+    const missions = missionsForHero(SPECIAL_MISSIONS, data.activeHero);
+    if (missions.length === 0) {
+      list.innerHTML = '<div class="empty-note">No hay misiones especiales asignadas a este héroe.</div>';
+      return;
+    }
+    missions.forEach(m => {
+      const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
+      const isDone = !!store[m.id];
+      const freqLabel = m.frecuencia === 'semanal' ? '🗓️ Semanal' : '🔁 Diaria';
+      const card = document.createElement('div');
+      card.className = 'quest-card epic' + (isDone ? ' done' : '');
+      card.innerHTML =
+        '<div class="quest-icon">' + m.icon + '</div>' +
+        '<div class="quest-info">' +
+          '<div class="quest-name' + (isDone ? ' done' : '') + '">' + m.name + '</div>' +
+          '<div class="quest-desc">' + m.desc + '</div>' +
+          '<div class="quest-meta"><span class="tag epic">' + m.dificultad + '</span><span class="tag">' + freqLabel + '</span><span>+' + m.xp + ' XP</span><span>+' + m.coins + ' 🪙</span></div>' +
+        '</div>' +
+        '<button class="quest-btn ' + (isDone ? 'undo-btn' : '') + '" data-special="' + m.id + '">' +
+          (isDone ? (confirmingUndo.has(m.id) ? '¿Seguro? Toca de nuevo' : 'Deshacer ↩') : 'Completar') +
+        '</button>';
+      list.appendChild(card);
+    });
+  }
+
+  function renderRewards(hero) {
+    const list = document.getElementById('rewardList');
+    list.innerHTML = '';
+    const available = availableCoins(hero);
+    REWARDS.forEach(r => {
+      const canAfford = available >= r.cost;
+      const card = document.createElement('div');
+      card.className = 'reward-card';
+      card.innerHTML =
+        '<div class="reward-icon">' + r.icon + '</div>' +
+        '<div class="reward-info">' +
+          '<div class="reward-name">' + r.name + '</div>' +
+          '<div class="reward-desc">' + r.desc + '</div>' +
+          '<div class="reward-cost">🪙 ' + r.cost + ' monedas · ' + r.tipo + '</div>' +
+        '</div>' +
+        '<button class="reward-btn" data-reward="' + r.id + '" ' + (canAfford ? '' : 'disabled') + '>Canjear</button>';
+      list.appendChild(card);
+    });
+  }
+
+  function renderHistory(hero) {
+    const box = document.getElementById('redeemHistory');
+    if (!hero.redeemHistory.length) {
+      box.innerHTML = '<strong>Historial de canjes:</strong> aún no se ha canjeado ningún premio.';
+      return;
+    }
+    const items = hero.redeemHistory.slice(-5).reverse()
+      .map(h => '<li>' + h.name + ' (-' + h.cost + ' 🪙) — ' + h.date + '</li>').join('');
+    box.innerHTML = '<strong>Historial de canjes recientes:</strong><ul>' + items + '</ul>';
+  }
+
+  function renderPlayerSidebar() {
+    const box = document.getElementById('playerSidebar');
+    box.innerHTML = '';
+    HEROES_DEFAULT.forEach(h => {
+      const hero = data.heroes[h.id];
+      const info = levelInfo(hero.xp);
+      const floor = info.floor;
+      const ceil = info.next ? info.next.xp : floor + 500;
+      const pct = info.next ? Math.min(100, ((hero.xp - floor) / (ceil - floor)) * 100) : 100;
+      const isActive = h.id === data.activeHero;
+
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'mini-card' + (isActive ? ' active' : '');
+      card.dataset.hero = h.id;
+      card.innerHTML =
+        '<div class="mini-avatar">' + (CLASS_ICON[hero.clase] || '🧙') + '</div>' +
+        '<div class="mini-info">' +
+          '<div class="mini-name">' + hero.name + '</div>' +
+          '<div class="mini-level">Nivel ' + info.level + ' · ' + info.title + '</div>' +
+          '<div class="mini-xp-outer"><div class="mini-xp-inner" style="width:' + pct + '%"></div></div>' +
+          '<div class="mini-coins">🪙 ' + availableCoins(hero) + '</div>' +
+        '</div>';
+      box.appendChild(card);
+    });
+  }
+
+  function completeDaily(id) {
+    const hero = currentHero();
+    if (hero.completedToday[id]) return;
+    const m = DAILY_MISSIONS.find(x => x.id === id);
+    if (!m) return;
+    const beforeLevel = levelInfo(hero.xp).level;
+    hero.xp += m.xp;
+    hero.totalCoinsEarned += m.coins;
+    hero.completedToday[id] = true;
+    registerPerfectDayIfNeeded(hero);
+    const afterLevel = levelInfo(hero.xp).level;
+    render();
+    if (afterLevel > beforeLevel) showToast('¡SUBISTE A NIVEL ' + afterLevel + '!');
+  }
+
+  function undoDaily(id) {
+    const hero = currentHero();
+    if (!hero.completedToday[id]) return;
+    const m = DAILY_MISSIONS.find(x => x.id === id);
+    if (!m) return;
+    const beforeLevel = levelInfo(hero.xp).level;
+    hero.xp = Math.max(0, hero.xp - m.xp);
+    hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
+    delete hero.completedToday[id];
+    registerPerfectDayIfNeeded(hero);
+    const afterLevel = levelInfo(hero.xp).level;
+    render();
+    showToast(afterLevel < beforeLevel ? 'Misión deshecha — bajaste a nivel ' + afterLevel : 'Misión deshecha');
+  }
+
+  function completeSpecial(id) {
+    const hero = currentHero();
+    const m = SPECIAL_MISSIONS.find(x => x.id === id);
+    if (!m) return;
+    const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
+    if (store[id]) return;
+    const beforeLevel = levelInfo(hero.xp).level;
+    hero.xp += m.xp;
+    hero.totalCoinsEarned += m.coins;
+    store[id] = true;
+    const afterLevel = levelInfo(hero.xp).level;
+    render();
+    if (afterLevel > beforeLevel) showToast('¡SUBISTE A NIVEL ' + afterLevel + '!');
+  }
+
+  function undoSpecial(id) {
+    const hero = currentHero();
+    const m = SPECIAL_MISSIONS.find(x => x.id === id);
+    if (!m) return;
+    const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
+    if (!store[id]) return;
+    const beforeLevel = levelInfo(hero.xp).level;
+    hero.xp = Math.max(0, hero.xp - m.xp);
+    hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
+    delete store[id];
+    const afterLevel = levelInfo(hero.xp).level;
+    render();
+    showToast(afterLevel < beforeLevel ? 'Misión deshecha — bajaste a nivel ' + afterLevel : 'Misión deshecha');
+  }
+
+  function redeemReward(id) {
+    const hero = currentHero();
+    const r = REWARDS.find(x => x.id === id);
+    if (!r || availableCoins(hero) < r.cost) return;
+    hero.coinsSpent += r.cost;
+    hero.redeemHistory.push({ name: r.name, cost: r.cost, date: new Date().toLocaleDateString('es-ES') });
+    render();
+    showToast('¡Canjeado: ' + r.name + ' (-' + r.cost + ' 🪙)!');
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById('levelupToast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  document.getElementById('dailyQuestList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-daily]');
+    if (!btn) return;
+    const id = btn.dataset.daily;
+    const hero = currentHero();
+    if (!hero.completedToday[id]) { completeDaily(id); return; }
+    if (confirmingUndo.has(id)) {
+      clearTimeout(confirmTimers[id]);
+      confirmingUndo.delete(id);
+      undoDaily(id);
+    } else {
+      armUndoConfirm(id);
+    }
+  });
+
+  document.getElementById('specialQuestList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-special]');
+    if (!btn) return;
+    const id = btn.dataset.special;
+    const hero = currentHero();
+    const m = SPECIAL_MISSIONS.find(x => x.id === id);
+    if (!m) return;
+    const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
+    if (!store[id]) { completeSpecial(id); return; }
+    if (confirmingUndo.has(id)) {
+      clearTimeout(confirmTimers[id]);
+      confirmingUndo.delete(id);
+      undoSpecial(id);
+    } else {
+      armUndoConfirm(id);
+    }
+  });
+
+  document.getElementById('rewardList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-reward]');
+    if (btn) redeemReward(btn.dataset.reward);
+  });
+
+  document.getElementById('heroSelect').addEventListener('change', e => {
+    clearAllUndoConfirms();
+    data.activeHero = e.target.value;
+    render();
+  });
+
+  document.getElementById('playerSidebar').addEventListener('click', e => {
+    const card = e.target.closest('button[data-hero]');
+    if (!card) return;
+    clearAllUndoConfirms();
+    data.activeHero = card.dataset.hero;
+    document.getElementById('heroSelect').value = card.dataset.hero;
+    render();
+  });
+
+  renderHeroSelect();
+  render();
+</script>
+
+</body>
+</html>
