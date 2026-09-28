@@ -602,8 +602,9 @@
     return Math.max(0, hero.totalCoinsEarned - hero.coinsSpent - hero.coinsReversed);
   }
 
-  function isPerfectDay(hero, dateKey) {
-    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+  function isPerfectDay(heroId, dateKey) {
+    const hero = data.heroes[heroId];
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, heroId);
     if (!dailyForHero.length) return false;
     if (dateKey === hero.lastDay) {
       return dailyForHero.every(m => hero.completedToday[m.id]);
@@ -611,7 +612,8 @@
     return !!hero.perfectDaysByDate[dateKey];
   }
 
-  function refreshStreak(hero) {
+  function refreshStreak(heroId) {
+    const hero = data.heroes[heroId];
     const currentWeek = isoWeekKey(new Date());
     let cursor = todayKey();
     let count = 0;
@@ -619,7 +621,7 @@
     // Un día sin registro rompe la racha: los días que la app estuvo cerrada no se inventan.
     for (let i = 0; i < 7; i++) {
       if (isoWeekKey(dateFromKey(cursor)) !== currentWeek) break;
-      if (!isPerfectDay(hero, cursor)) break;
+      if (!isPerfectDay(heroId, cursor)) break;
       count++;
       cursor = addDays(cursor, -1);
     }
@@ -627,15 +629,16 @@
     return count;
   }
 
-  function registerPerfectDayIfNeeded(hero) {
+  function registerPerfectDayIfNeeded(heroId) {
+    const hero = data.heroes[heroId];
     const today = todayKey();
-    const dailyForHero = missionsForHero(DAILY_MISSIONS, data.activeHero);
+    const dailyForHero = missionsForHero(DAILY_MISSIONS, heroId);
     if (dailyForHero.length && dailyForHero.every(m => hero.completedToday[m.id])) {
       hero.perfectDaysByDate[today] = true;
     } else {
       delete hero.perfectDaysByDate[today];
     }
-    refreshStreak(hero);
+    refreshStreak(heroId);
   }
 
   function loadData() {
@@ -688,7 +691,7 @@
     return { level: current.level, title: current.title, floor: current.xp, next };
   }
 
-  function resetIfNewDay(hero) {
+  function resetIfNewDay(hero, heroId) {
     const t = todayKey();
     if (hero.lastDay !== t) {
       hero.completedToday = {};
@@ -704,7 +707,7 @@
       hero.completedEpicWeekly = {};
     }
 
-    refreshStreak(hero);
+    refreshStreak(heroId);
 
     if (hero.perfectDays >= 7 && !hero.bonusAwardedForWeek) {
       hero.xp += 100;
@@ -744,7 +747,7 @@
 
   function render() {
     const hero = currentHero();
-    resetIfNewDay(hero);
+    resetIfNewDay(hero, data.activeHero);
 
     const info = levelInfo(hero.xp);
     const floor = info.floor;
@@ -905,7 +908,7 @@
     hero.xp += m.xp;
     hero.totalCoinsEarned += m.coins;
     hero.completedToday[id] = true;
-    registerPerfectDayIfNeeded(hero);
+    registerPerfectDayIfNeeded(data.activeHero);
     const afterLevel = levelInfo(hero.xp).level;
     render();
     if (afterLevel > beforeLevel) showToast('¡SUBISTE A NIVEL ' + afterLevel + '!');
@@ -920,7 +923,7 @@
     hero.xp = Math.max(0, hero.xp - m.xp);
     hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
     delete hero.completedToday[id];
-    registerPerfectDayIfNeeded(hero);
+    registerPerfectDayIfNeeded(data.activeHero);
     const afterLevel = levelInfo(hero.xp).level;
     render();
     showToast(afterLevel < beforeLevel ? 'Misión deshecha — bajaste a nivel ' + afterLevel : 'Misión deshecha');
@@ -995,40 +998,3 @@
     const hero = currentHero();
     const m = SPECIAL_MISSIONS.find(x => x.id === id);
     if (!m) return;
-    const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
-    if (!store[id]) { completeSpecial(id); return; }
-    if (confirmingUndo.has(id)) {
-      clearTimeout(confirmTimers[id]);
-      confirmingUndo.delete(id);
-      undoSpecial(id);
-    } else {
-      armUndoConfirm(id);
-    }
-  });
-
-  document.getElementById('rewardList').addEventListener('click', e => {
-    const btn = e.target.closest('button[data-reward]');
-    if (btn) redeemReward(btn.dataset.reward);
-  });
-
-  document.getElementById('heroSelect').addEventListener('change', e => {
-    clearAllUndoConfirms();
-    data.activeHero = e.target.value;
-    render();
-  });
-
-  document.getElementById('playerSidebar').addEventListener('click', e => {
-    const card = e.target.closest('button[data-hero]');
-    if (!card) return;
-    clearAllUndoConfirms();
-    data.activeHero = card.dataset.hero;
-    document.getElementById('heroSelect').value = card.dataset.hero;
-    render();
-  });
-
-  renderHeroSelect();
-  render();
-</script>
-
-</body>
-</html>
