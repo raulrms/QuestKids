@@ -297,8 +297,7 @@
     border: none;
     border-radius: 8px;
     padding: 10px 14px;
-    cursor: pointer;
-    background: var(--forest);
+    cursor: pointer;    background: var(--forest);
     color: white;
     box-shadow: 0 3px 0 var(--forest-dark);
     flex-shrink: 0;
@@ -597,7 +596,6 @@
       bonusAwardedForWeek: false,
     };
   }
-
   function availableCoins(hero) {
     return Math.max(0, hero.totalCoinsEarned - hero.coinsSpent - hero.coinsReversed);
   }
@@ -898,7 +896,6 @@
       box.appendChild(card);
     });
   }
-
   function completeDaily(id) {
     const hero = currentHero();
     if (hero.completedToday[id]) return;
@@ -998,3 +995,40 @@
     const hero = currentHero();
     const m = SPECIAL_MISSIONS.find(x => x.id === id);
     if (!m) return;
+    const store = m.frecuencia === 'semanal' ? hero.completedEpicWeekly : hero.completedEpicDaily;
+    if (!store[id]) { completeSpecial(id); return; }
+    if (confirmingUndo.has(id)) {
+      clearTimeout(confirmTimers[id]);
+      confirmingUndo.delete(id);
+      undoSpecial(id);
+    } else {
+      armUndoConfirm(id);
+    }
+  });
+
+  document.getElementById('rewardList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-reward]');
+    if (btn) redeemReward(btn.dataset.reward);
+  });
+
+  document.getElementById('heroSelect').addEventListener('change', e => {
+    clearAllUndoConfirms();
+    data.activeHero = e.target.value;
+    render();
+  });
+
+  document.getElementById('playerSidebar').addEventListener('click', e => {
+    const card = e.target.closest('button[data-hero]');
+    if (!card) return;
+    clearAllUndoConfirms();
+    data.activeHero = card.dataset.hero;
+    document.getElementById('heroSelect').value = card.dataset.hero;
+    render();
+  });
+
+  renderHeroSelect();
+  render();
+</script>
+
+</body>
+</html>
