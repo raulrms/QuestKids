@@ -103,10 +103,13 @@
   .mini-coins { font-size: 11px; font-weight: 800; color: var(--wood); margin-top: 2px; }
 
   @media (max-width: 880px) {
-    .layout { flex-direction: column; }
-    .sidebar { width: 100%; position: static; }
-    #playerSidebar { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
-    .mini-card { min-width: 170px; flex: 0 0 auto; }
+    .layout { flex-direction: column; gap: 14px; }
+    /* En columna, flex-basis actúa sobre el ALTO: se anula para que no deje huecos vacíos */
+    .sidebar { width: 100%; flex: 0 0 auto; position: static; }
+    .board { flex: 0 0 auto; width: 100%; }
+    #playerSidebar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .mini-card { min-width: 0; padding: 8px 10px; }
+    .mini-level { white-space: normal; }
   }
 
   header.sheet {
@@ -115,9 +118,6 @@
     border-radius: 14px;
     box-shadow: 0 10px 0 var(--paper-shadow), 0 14px 24px rgba(0,0,0,0.35);
     padding: 20px 22px;
-    position: sticky;
-    top: 10px;
-    z-index: 5;
   }
 
   .tabs {
@@ -197,52 +197,41 @@
     font-size: 42px;
   }
 
-  .hero-editor { position: relative; }
-
-  .hero-editor summary {
-    list-style: none;
+  .edit-badge {
     position: absolute;
     bottom: -4px;
     right: -4px;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: var(--gold);
     border: 2px solid var(--wood-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 13px;
     cursor: pointer;
+    padding: 0;
   }
-  .hero-editor summary::-webkit-details-marker { display: none; }
 
-  .hero-editor-body {
-    position: absolute;
-    top: 94px;
-    left: 0;
-    z-index: 6;
-    background: var(--parchment);
-    border: 3px solid var(--wood-dark);
-    border-radius: 10px;
-    padding: 10px;
+  .hero-editor-panel {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 170px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: var(--parchment-dark);
+    border: 2px dashed var(--wood);
+    border-radius: 10px;
   }
-
-  .hero-editor-body label {
+  .hero-editor-panel[hidden] { display: none; }
+  .hero-editor-panel label {
     font-size: 11px;
     font-weight: 800;
     color: var(--wood);
     display: flex;
     flex-direction: column;
     gap: 3px;
+    flex: 1 1 130px;
   }
-
-  .hero-editor-body select {
+  .hero-editor-panel select {
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -250,6 +239,101 @@
     border-radius: 6px;
     border: 2px solid var(--wood);
   }
+
+  /* Mini-barra fija: aparece cuando la ficha grande sale de la pantalla.
+     El ancla mide 0 de alto, así que no desplaza nada del contenido. */
+  .minibar-anchor { position: sticky; top: 8px; height: 0; z-index: 7; }
+  .minibar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: var(--parchment);
+    border: 3px solid var(--wood-dark);
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+    transform: translateY(-140%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .minibar.show { transform: none; opacity: 1; pointer-events: auto; }
+  .minibar-avatar { font-size: 22px; }
+  .minibar-name { font-weight: 800; font-size: 14px; }
+  .minibar-level {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    background: var(--wood-dark);
+    color: var(--gold-light);
+    padding: 3px 6px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .minibar-xp {
+    flex: 1;
+    min-width: 30px;
+    height: 10px;
+    background: var(--parchment-dark);
+    border: 2px solid var(--wood-dark);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .minibar-xp-inner { height: 100%; width: 0%; background: var(--forest); }
+  .minibar-coins { font-weight: 800; font-size: 13px; white-space: nowrap; }
+
+  .storage-warning {
+    background: #F3D9CE;
+    color: #7a3121;
+    border: 3px solid var(--ember);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .storage-warning[hidden] { display: none; }
+
+  .reward-btn.confirming { background: var(--ember); box-shadow: 0 3px 0 #7a3121; }
+
+  /* Copia de seguridad */
+  .backup-help { font-size: 12px; color: var(--wood); margin: 8px 0; }
+  .backup-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .backup-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--wood-dark);
+    background: var(--gold);
+    color: var(--wood-dark);
+    cursor: pointer;
+  }
+  .backup-btn.danger { background: var(--ember); color: #fff; }
+  .backup-btn[hidden], .backup-confirm[hidden] { display: none; }
+  .backup-confirm {
+    background: #F3D9CE;
+    border: 2px solid var(--ember);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  #backupText {
+    width: 100%;
+    font-family: monospace;
+    font-size: 11px;
+    border: 2px solid var(--wood);
+    border-radius: 6px;
+    padding: 6px;
+    margin-top: 6px;
+  }
+  .backup-status { font-size: 12px; font-weight: 700; color: var(--forest-dark); margin-top: 6px; min-height: 16px; }
+  details.backup-text { margin-top: 8px; }
+  details.backup-text summary { font-size: 12px; font-weight: 700; cursor: pointer; }
 
   .stats { flex: 1; min-width: 200px; }
 
@@ -499,6 +583,16 @@
   </aside>
 
   <div class="board">
+  <div class="minibar-anchor" aria-hidden="true">
+    <div class="minibar" id="miniBar">
+      <span class="minibar-avatar" id="miniAvatar">⚔️</span>
+      <span class="minibar-name" id="miniName">Helena</span>
+      <span class="minibar-level" id="miniLevel">NIV 1</span>
+      <div class="minibar-xp"><div class="minibar-xp-inner" id="miniXp"></div></div>
+      <span class="minibar-coins">🪙 <span id="miniCoins">0</span></span>
+    </div>
+  </div>
+  <div class="storage-warning" id="storageWarning" hidden>⚠️ No se puede guardar el progreso en este navegador. Lo que hagas se perderá al cerrar o recargar la página.</div>
   <header class="sheet">
     <div class="title-row">
       <h1>🏰 Quest Kids<br>RPG de Hábitos</h1>
@@ -507,17 +601,7 @@
     <div class="character-row">
       <div class="avatar-wrap">
         <div class="avatar" id="avatarEmoji">⚔️</div>
-        <details class="hero-editor" id="heroEditor">
-          <summary title="Personalizar icono y profesión">✏️</summary>
-          <div class="hero-editor-body">
-            <label>Icono
-              <select id="iconSelect"></select>
-            </label>
-            <label>Profesión
-              <select id="classSelect"></select>
-            </label>
-          </div>
-        </details>
+        <button type="button" class="edit-badge" id="editHeroBtn" aria-expanded="false" aria-controls="heroEditorPanel" title="Personalizar icono y profesión">✏️</button>
       </div>
       <div class="stats">
         <div class="name-line">
@@ -535,6 +619,14 @@
         🪙 <span id="coinCount">0</span>
         <span style="font-size:11px; font-weight:700; color: var(--wood); white-space:normal;">disponibles<br>(<span id="totalCoinsEarned">0</span> ganadas en total)</span>
       </div>
+    </div>
+    <div class="hero-editor-panel" id="heroEditorPanel" hidden>
+      <label>Icono
+        <select id="iconSelect"></select>
+      </label>
+      <label>Profesión
+        <select id="classSelect"></select>
+      </label>
     </div>
     <div class="streak-line">
       Racha semanal (días perfectos):
@@ -593,6 +685,32 @@
     <p style="font-size:12px; color: var(--wood); margin-top:8px;">🏆 Bonus semanal: completar TODAS las misiones diarias 7 días seguidos otorga +100 XP y +50 🪙 extra.</p>
   </details>
 
+  <details class="levels backup" id="backupPanel">
+    <summary>💾 Copia de seguridad</summary>
+    <p class="backup-help">Los datos viven solo en este navegador. Descarga una copia de vez en cuando, o restaura una anterior (también sirve para pasar el progreso a otro dispositivo).</p>
+    <div class="backup-actions">
+      <button type="button" class="backup-btn" id="exportBtn">⬇️ Descargar copia</button>
+      <button type="button" class="backup-btn" id="importFileBtn">⬆️ Restaurar desde archivo</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+    <details class="backup-text">
+      <summary>…o copiar y pegar como texto</summary>
+      <textarea id="backupText" rows="5" placeholder="Aquí aparecerá la copia, o pega una para restaurarla"></textarea>
+      <div class="backup-actions">
+        <button type="button" class="backup-btn" id="showTextBtn">Mostrar copia como texto</button>
+        <button type="button" class="backup-btn" id="importTextBtn">Restaurar desde el texto</button>
+      </div>
+    </details>
+    <div class="backup-confirm" id="backupConfirm" hidden>
+      <div id="backupConfirmMsg"></div>
+      <div class="backup-actions">
+        <button type="button" class="backup-btn danger" id="confirmImportBtn">Sí, reemplazar todo</button>
+        <button type="button" class="backup-btn" id="cancelImportBtn">Cancelar</button>
+      </div>
+    </div>
+    <div class="backup-status" id="backupStatus" role="status"></div>
+  </details>
+
   <footer class="note">Los datos se guardan en este navegador y dispositivo.</footer>
   </div>
 </div>
@@ -601,6 +719,11 @@
 
 <script>
   const STORAGE_KEY = 'questKidsRPG';
+  const WEEKLY_BONUS = { xp: 100, coins: 50 };
+
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
 
   const LEVELS = [
     { level: 1, xp: 0,    title: 'Aprendiz 🌱' },
@@ -762,41 +885,80 @@
     refreshStreak(heroId);
   }
 
-  function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        // Migración: versiones anteriores solo guardaban "coins" (saldo ya neto).
-        Object.values(parsed.heroes || {}).forEach(hero => {
-          if (hero.totalCoinsEarned === undefined) {
-            hero.totalCoinsEarned = hero.coins || 0;
-            hero.coinsSpent = 0;
-            delete hero.coins;
-          }
-          if (hero.coinsReversed === undefined) hero.coinsReversed = 0;
-          if (!hero.icon) hero.icon = CLASS_ICON[hero.clase] || '🧙';
-          if (!hero.perfectDaysByDate || typeof hero.perfectDaysByDate !== 'object') {
-            hero.perfectDaysByDate = {};
-          }
-          // Migración: versión anterior guardaba las misiones épicas como "hechas para siempre"
-          // en completedSpecial. Las tratamos como ya completadas esta semana (no vuelven a dar
-          // recompensa hasta el próximo ciclo) y dejamos las diarias listas para completarse hoy.
-          if (hero.completedEpicDaily === undefined || hero.completedEpicWeekly === undefined) {
-            hero.completedEpicDaily = {};
-            hero.completedEpicWeekly = Object.assign({}, hero.completedSpecial || {});
-            delete hero.completedSpecial;
-          }
-        });
-        return parsed;
-      } catch (e) { /* fall through */ }
-    }
+  let storageOK = true;
+
+  function freshData() {
     const heroes = {};
     HEROES_DEFAULT.forEach(h => { heroes[h.id] = defaultHeroState(h.name, h.clase); });
-    return { activeHero: 'helena', heroes };
+    return { activeHero: HEROES_DEFAULT[0].id, heroes };
   }
 
-  function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  // Valida y actualiza datos guardados (o importados) al formato actual.
+  // Lanza un Error si el contenido no tiene el formato esperado.
+  function migrateData(parsed) {
+    if (!parsed || typeof parsed !== 'object' || !parsed.heroes || typeof parsed.heroes !== 'object') {
+      throw new Error('El contenido no tiene el formato de una copia de Quest Kids.');
+    }
+    HEROES_DEFAULT.forEach(h => {
+      if (!parsed.heroes[h.id]) parsed.heroes[h.id] = defaultHeroState(h.name, h.clase);
+    });
+    Object.values(parsed.heroes).forEach(hero => {
+      if (!hero || typeof hero !== 'object' || typeof hero.xp !== 'number' || !isFinite(hero.xp)) {
+        throw new Error('Los datos de algún héroe están dañados.');
+      }
+      // Migración: versiones anteriores solo guardaban "coins" (saldo ya neto).
+      if (hero.totalCoinsEarned === undefined) {
+        hero.totalCoinsEarned = hero.coins || 0;
+        hero.coinsSpent = 0;
+        delete hero.coins;
+      }
+      if (typeof hero.coinsSpent !== 'number') hero.coinsSpent = 0;
+      if (typeof hero.coinsReversed !== 'number') hero.coinsReversed = 0;
+      hero.name = String(hero.name || 'Héroe').slice(0, 40);
+      if (!CLASS_OPTIONS.includes(hero.clase)) hero.clase = '🧙 Mago';
+      if (!hero.icon || typeof hero.icon !== 'string' || hero.icon.length > 8) hero.icon = CLASS_ICON[hero.clase] || '🧙';
+      if (!hero.perfectDaysByDate || typeof hero.perfectDaysByDate !== 'object') hero.perfectDaysByDate = {};
+      if (!hero.completedToday || typeof hero.completedToday !== 'object') hero.completedToday = {};
+      if (!Array.isArray(hero.redeemHistory)) hero.redeemHistory = [];
+      if (typeof hero.lastDay !== 'string') hero.lastDay = todayKey();
+      if (typeof hero.weekKey !== 'string') hero.weekKey = isoWeekKey(new Date());
+      if (typeof hero.perfectDays !== 'number') hero.perfectDays = 0;
+      hero.bonusAwardedForWeek = !!hero.bonusAwardedForWeek;
+      // Migración: versión anterior guardaba las misiones épicas como "hechas para siempre"
+      // en completedSpecial. Las tratamos como ya completadas esta semana (no vuelven a dar
+      // recompensa hasta el próximo ciclo) y dejamos las diarias listas para completarse hoy.
+      if (hero.completedEpicDaily === undefined || hero.completedEpicWeekly === undefined) {
+        hero.completedEpicDaily = {};
+        hero.completedEpicWeekly = Object.assign({}, hero.completedSpecial || {});
+        delete hero.completedSpecial;
+      }
+    });
+    if (!parsed.heroes[parsed.activeHero]) parsed.activeHero = HEROES_DEFAULT[0].id;
+    return parsed;
+  }
+
+  function loadData() {
+    let raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); }
+    catch (e) { storageOK = false; }   // p. ej. iframe con sandbox o modo privado
+    if (raw) {
+      try { return migrateData(JSON.parse(raw)); }
+      catch (e) {
+        // Datos corruptos: se guarda una copia del texto original antes de empezar de cero.
+        try { localStorage.setItem(STORAGE_KEY + '_corrupto', raw); } catch (e2) { /* nada */ }
+      }
+    }
+    return freshData();
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      storageOK = true;
+    } catch (e) {
+      storageOK = false;
+    }
+  }
 
   let data = loadData();
   function currentHero() { return data.heroes[data.activeHero]; }
@@ -832,14 +994,23 @@
     refreshStreak(heroId);
 
     if (hero.perfectDays >= 7 && !hero.bonusAwardedForWeek) {
-      hero.xp += 100;
-      hero.totalCoinsEarned += 50;
+      hero.xp += WEEKLY_BONUS.xp;
+      hero.totalCoinsEarned += WEEKLY_BONUS.coins;
       hero.bonusAwardedForWeek = true;
       pendingWeeklyBonus = true;
     }
   }
 
   let pendingWeeklyBonus = false;
+  let lastRenderedDay = todayKey();
+
+  // Si la página lleva abierta desde ayer, vuelve a dibujar con el día nuevo.
+  function refreshIfDayChanged() {
+    if (todayKey() === lastRenderedDay) return false;
+    clearAllUndoConfirms();
+    render();
+    return true;
+  }
   const confirmingUndo = new Set();
   const confirmTimers = {};
 
@@ -905,6 +1076,13 @@
     document.getElementById('heroClass').textContent = hero.clase;
     document.getElementById('avatarEmoji').textContent = hero.icon || CLASS_ICON[hero.clase] || '🧙';
     renderHeroEditor(hero);
+    lastRenderedDay = todayKey();
+    document.getElementById('storageWarning').hidden = storageOK;
+    document.getElementById('miniAvatar').textContent = hero.icon || CLASS_ICON[hero.clase] || '🧙';
+    document.getElementById('miniName').textContent = hero.name;
+    document.getElementById('miniLevel').textContent = 'NIV ' + info.level;
+    document.getElementById('miniXp').style.width = pct + '%';
+    document.getElementById('miniCoins').textContent = availableCoins(hero);
     document.getElementById('levelTag').textContent = 'NIVEL ' + info.level;
     document.getElementById('titleBadge').textContent = info.title;
     document.getElementById('xpBar').style.width = pct + '%';
@@ -927,6 +1105,7 @@
     renderPlayerSidebar();
 
     saveData();
+    document.getElementById('storageWarning').hidden = storageOK;
 
     if (pendingWeeklyBonus) {
       pendingWeeklyBonus = false;
@@ -1003,7 +1182,8 @@
           '<div class="reward-desc">' + r.desc + '</div>' +
           '<div class="reward-cost">🪙 ' + r.cost + ' monedas · ' + r.tipo + '</div>' +
         '</div>' +
-        '<button class="reward-btn" data-reward="' + r.id + '" ' + (canAfford ? '' : 'disabled') + '>Canjear</button>';
+        '<button class="reward-btn' + (confirmingUndo.has(r.id) ? ' confirming' : '') + '" data-reward="' + r.id + '" ' + (canAfford ? '' : 'disabled') + '>' +
+          (confirmingUndo.has(r.id) ? '¿Seguro? Toca de nuevo' : 'Canjear') + '</button>';
       list.appendChild(card);
     });
   }
@@ -1015,7 +1195,7 @@
       return;
     }
     const items = hero.redeemHistory.slice(-5).reverse()
-      .map(h => '<li>' + h.name + ' (-' + h.cost + ' 🪙) — ' + h.date + '</li>').join('');
+      .map(h => '<li>' + esc(h.name) + ' (-' + esc(h.cost) + ' 🪙) — ' + esc(h.date) + '</li>').join('');
     box.innerHTML = '<strong>Historial de canjes recientes:</strong><ul>' + items + '</ul>';
   }
 
@@ -1035,9 +1215,9 @@
       card.className = 'mini-card' + (isActive ? ' active' : '');
       card.dataset.hero = h.id;
       card.innerHTML =
-        '<div class="mini-avatar">' + (hero.icon || CLASS_ICON[hero.clase] || '🧙') + '</div>' +
+        '<div class="mini-avatar">' + esc(hero.icon || CLASS_ICON[hero.clase] || '🧙') + '</div>' +
         '<div class="mini-info">' +
-          '<div class="mini-name">' + hero.name + '</div>' +
+          '<div class="mini-name">' + esc(hero.name) + '</div>' +
           '<div class="mini-level">Nivel ' + info.level + ' · ' + info.title + '</div>' +
           '<div class="mini-xp-outer"><div class="mini-xp-inner" style="width:' + pct + '%"></div></div>' +
           '<div class="mini-coins">🪙 ' + availableCoins(hero) + '</div>' +
@@ -1071,9 +1251,17 @@
     hero.coinsReversed += Math.min(m.coins, availableCoins(hero));
     delete hero.completedToday[id];
     registerPerfectDayIfNeeded(data.activeHero);
+    // Si la semana ya no tiene los 7 días perfectos, el bonus semanal se retira.
+    let bonusRevoked = false;
+    if (hero.bonusAwardedForWeek && hero.perfectDays < 7) {
+      hero.xp = Math.max(0, hero.xp - WEEKLY_BONUS.xp);
+      hero.coinsReversed += Math.min(WEEKLY_BONUS.coins, availableCoins(hero));
+      hero.bonusAwardedForWeek = false;
+      bonusRevoked = true;
+    }
     const afterLevel = levelInfo(hero.xp).level;
     render();
-    showToast(afterLevel < beforeLevel ? 'Misión deshecha — bajaste a nivel ' + afterLevel : 'Misión deshecha');
+    showToast('Misión deshecha' + (bonusRevoked ? ' — bonus semanal retirado' : '') + (afterLevel < beforeLevel ? ' — bajaste a nivel ' + afterLevel : ''));
   }
 
   function completeSpecial(id) {
@@ -1140,6 +1328,7 @@
   document.getElementById('dailyQuestList').addEventListener('click', e => {
     const btn = e.target.closest('button[data-daily]');
     if (!btn) return;
+    if (refreshIfDayChanged()) return;
     const id = btn.dataset.daily;
     const hero = currentHero();
     if (!hero.completedToday[id]) { completeDaily(id); return; }
@@ -1155,6 +1344,7 @@
   document.getElementById('specialQuestList').addEventListener('click', e => {
     const btn = e.target.closest('button[data-special]');
     if (!btn) return;
+    if (refreshIfDayChanged()) return;
     const id = btn.dataset.special;
     const hero = currentHero();
     const m = SPECIAL_MISSIONS.find(x => x.id === id);
@@ -1172,7 +1362,16 @@
 
   document.getElementById('rewardList').addEventListener('click', e => {
     const btn = e.target.closest('button[data-reward]');
-    if (btn) redeemReward(btn.dataset.reward);
+    if (!btn) return;
+    if (refreshIfDayChanged()) return;
+    const id = btn.dataset.reward;   // los ids de recompensas (r1…) no chocan con los de misiones
+    if (confirmingUndo.has(id)) {
+      clearTimeout(confirmTimers[id]);
+      confirmingUndo.delete(id);
+      redeemReward(id);
+    } else {
+      armUndoConfirm(id);
+    }
   });
 
   document.getElementById('heroSelect').addEventListener('change', e => {
@@ -1192,6 +1391,12 @@
     render();
   });
 
+  document.getElementById('editHeroBtn').addEventListener('click', () => {
+    const panel = document.getElementById('heroEditorPanel');
+    panel.hidden = !panel.hidden;
+    document.getElementById('editHeroBtn').setAttribute('aria-expanded', String(!panel.hidden));
+  });
+
   document.getElementById('iconSelect').addEventListener('change', e => {
     const hero = currentHero();
     hero.icon = e.target.value;
@@ -1206,6 +1411,117 @@
     document.getElementById('heroSelect').value = card.dataset.hero;
     render();
   });
+
+  // ───────── Copia de seguridad ─────────
+  let pendingImport = null;
+
+  function setBackupStatus(msg) { document.getElementById('backupStatus').textContent = msg; }
+
+  function buildBackupJson() {
+    return JSON.stringify({ app: 'quest-kids', version: 1, exportedAt: new Date().toISOString(), data }, null, 2);
+  }
+
+  function parseBackupText(text) {
+    const obj = JSON.parse(text);
+    const payload = obj && obj.data && obj.data.heroes ? obj.data : obj;
+    return migrateData(payload);
+  }
+
+  function downloadBackup() {
+    try {
+      const blob = new Blob([buildBackupJson()], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quest-kids-copia-' + todayKey() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      setBackupStatus('Copia generada. Si no se descarga (algunos visores lo bloquean), usa la opción de texto.');
+    } catch (e) {
+      setBackupStatus('No se pudo descargar. Usa la opción «copiar y pegar como texto».');
+    }
+  }
+
+  function stageImport(text) {
+    try {
+      pendingImport = parseBackupText(text);
+    } catch (e) {
+      pendingImport = null;
+      document.getElementById('backupConfirm').hidden = true;
+      setBackupStatus('No se puede restaurar: ' + (e instanceof SyntaxError ? 'el texto no es un JSON válido.' : e.message));
+      return;
+    }
+    const names = Object.values(pendingImport.heroes).map(h => h.name).join(', ');
+    document.getElementById('backupConfirmMsg').textContent =
+      'Copia válida (héroes: ' + names + '). Restaurarla REEMPLAZARÁ todo el progreso actual.';
+    document.getElementById('backupConfirm').hidden = false;
+    setBackupStatus('');
+  }
+
+  function applyImport() {
+    if (!pendingImport) return;
+    data = pendingImport;
+    pendingImport = null;
+    document.getElementById('backupConfirm').hidden = true;
+    clearAllUndoConfirms();
+    document.getElementById('heroSelect').value = data.activeHero;
+    render();
+    setBackupStatus('Copia restaurada ✅');
+    showToast('Copia restaurada');
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', downloadBackup);
+  document.getElementById('showTextBtn').addEventListener('click', () => {
+    document.getElementById('backupText').value = buildBackupJson();
+    setBackupStatus('Selecciona todo el texto y cópialo en un lugar seguro.');
+  });
+  document.getElementById('importTextBtn').addEventListener('click', () => {
+    const text = document.getElementById('backupText').value.trim();
+    if (!text) { setBackupStatus('Pega primero el texto de una copia.'); return; }
+    stageImport(text);
+  });
+  document.getElementById('importFileBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { setBackupStatus('El archivo es demasiado grande para ser una copia de Quest Kids.'); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = () => stageImport(String(reader.result));
+    reader.onerror = () => setBackupStatus('No se pudo leer el archivo.');
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+  document.getElementById('confirmImportBtn').addEventListener('click', applyImport);
+  document.getElementById('cancelImportBtn').addEventListener('click', () => {
+    pendingImport = null;
+    document.getElementById('backupConfirm').hidden = true;
+    setBackupStatus('Restauración cancelada.');
+  });
+
+  // ───────── Sincronía entre pestañas (otra pestaña guardó datos) ─────────
+  window.addEventListener('storage', e => {
+    if (e.key !== STORAGE_KEY || !e.newValue) return;
+    try {
+      data = migrateData(JSON.parse(e.newValue));
+      clearAllUndoConfirms();
+      document.getElementById('heroSelect').value = data.activeHero;
+      render();
+    } catch (err) { /* contenido ilegible: se ignora */ }
+  });
+
+  // ───────── Cambio de día con la página abierta ─────────
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshIfDayChanged(); });
+  window.addEventListener('focus', refreshIfDayChanged);
+  setInterval(refreshIfDayChanged, 30000);
+
+  // ───────── Mini-barra: aparece cuando la ficha grande sale de la pantalla ─────────
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      document.getElementById('miniBar').classList.toggle('show', !entries[0].isIntersecting);
+    }, { rootMargin: '-70px 0px 0px 0px' }).observe(document.querySelector('header.sheet'));
+  }
 
   renderHeroSelect();
   render();
