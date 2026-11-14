@@ -20,6 +20,15 @@
     --ember: #B24A34;
     --sky: #3B6E8F;
     --paper-shadow: rgba(61,42,26,0.25);
+
+    /* Escala tipográfica: 5 tamaños de texto + 1 de fuente pixel.
+       Nada que se lea baja de 13px. */
+    --fs-1: 13px;   /* datos secundarios */
+    --fs-2: 14px;   /* texto de apoyo */
+    --fs-3: 16px;   /* texto principal */
+    --fs-4: 20px;   /* subtítulos, iconos pequeños */
+    --fs-5: 30px;   /* nombre del héroe, contadores, iconos grandes */
+    --fs-pixel: 14px; /* Press Start 2P: solo títulos; a menos de 14px no se lee */
   }
 
   * { box-sizing: border-box; }
@@ -27,6 +36,7 @@
   body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     font-family: 'Nunito', sans-serif;
     color: var(--ink);
     background:
@@ -53,8 +63,9 @@
   }
 
   .sidebar h3 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: var(--fs-3);
     color: var(--gold-light);
     text-shadow: 2px 2px 0 var(--wood-dark);
     margin: 0 0 10px;
@@ -87,12 +98,12 @@
     background: var(--parchment-dark);
     border: 2px solid var(--wood-dark);
     display: flex; align-items: center; justify-content: center;
-    font-size: 19px; flex-shrink: 0;
+    font-size: var(--fs-4); flex-shrink: 0;
   }
 
   .mini-info { flex: 1; min-width: 0; }
-  .mini-name { font-weight: 800; font-size: 13px; }
-  .mini-level { font-size: 10px; color: var(--wood); font-weight: 700; }
+  .mini-name { font-weight: 800; font-size: var(--fs-3); }
+  .mini-level { font-size: var(--fs-1); color: var(--wood); font-weight: 700; }
   .mini-xp-outer {
     margin-top: 4px; height: 6px; border-radius: 4px;
     background: var(--parchment-dark);
@@ -100,7 +111,7 @@
     overflow: hidden;
   }
   .mini-xp-inner { height: 100%; background: var(--forest); }
-  .mini-coins { font-size: 11px; font-weight: 800; color: var(--wood); margin-top: 2px; }
+  .mini-coins { font-size: var(--fs-1); font-weight: 800; color: var(--wood); margin-top: 2px; }
 
   @media (max-width: 880px) {
     .layout { flex-direction: column; gap: 14px; }
@@ -117,7 +128,7 @@
     border: 4px solid var(--wood-dark);
     border-radius: 14px;
     box-shadow: 0 10px 0 var(--paper-shadow), 0 14px 24px rgba(0,0,0,0.35);
-    padding: 20px 22px;
+    padding: 24px 26px;
   }
 
   .tabs {
@@ -130,7 +141,7 @@
     flex: 1;
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
-    font-size: 13px;
+    font-size: var(--fs-2);
     padding: 10px 8px;
     border-radius: 10px;
     border: 3px solid var(--wood-dark);
@@ -158,16 +169,25 @@
 
   h1 {
     font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: var(--fs-pixel);
+    line-height: 1.5;
     margin: 0;
     color: var(--wood-dark);
+  }
+
+  .wordmark-sub {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: var(--fs-2);
+    font-weight: 700;
+    color: var(--wood);
   }
 
   select#heroSelect {
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
-    font-size: 14px;
+    font-size: var(--fs-2);
     padding: 8px 10px;
     border-radius: 8px;
     border: 2px solid var(--wood);
@@ -176,25 +196,25 @@
   }
 
   .character-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 18px;
-    margin-top: 18px;
-    flex-wrap: wrap;
+    gap: 14px 26px;
+    margin-top: 20px;
   }
 
-  .avatar-wrap { position: relative; flex-shrink: 0; }
+  .avatar-wrap { position: relative; }
 
   .avatar {
-    width: 84px;
-    height: 84px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: var(--gold-light);
     border: 4px solid var(--wood-dark);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 42px;
+    font-size: 60px;
   }
 
   .edit-badge {
@@ -206,7 +226,7 @@
     border-radius: 50%;
     background: var(--gold);
     border: 2px solid var(--wood-dark);
-    font-size: 13px;
+    font-size: var(--fs-2);
     cursor: pointer;
     padding: 0;
   }
@@ -223,7 +243,7 @@
   }
   .hero-editor-panel[hidden] { display: none; }
   .hero-editor-panel label {
-    font-size: 11px;
+    font-size: var(--fs-1);
     font-weight: 800;
     color: var(--wood);
     display: flex;
@@ -234,7 +254,7 @@
   .hero-editor-panel select {
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    font-size: 14px;
+    font-size: var(--fs-2);
     padding: 6px;
     border-radius: 6px;
     border: 2px solid var(--wood);
@@ -260,15 +280,15 @@
     transition: transform 0.2s ease, opacity 0.2s ease;
   }
   .minibar.show { transform: none; opacity: 1; pointer-events: auto; }
-  .minibar-avatar { font-size: 22px; }
-  .minibar-name { font-weight: 800; font-size: 14px; }
+  .minibar-avatar { font-size: var(--fs-4); }
+  .minibar-name { font-weight: 800; font-size: var(--fs-3); }
   .minibar-level {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+    font-size: var(--fs-1);
+    font-weight: 800;
     background: var(--wood-dark);
     color: var(--gold-light);
-    padding: 3px 6px;
-    border-radius: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
     white-space: nowrap;
   }
   .minibar-xp {
@@ -281,7 +301,43 @@
     overflow: hidden;
   }
   .minibar-xp-inner { height: 100%; width: 0%; background: var(--forest); }
-  .minibar-coins { font-weight: 800; font-size: 13px; white-space: nowrap; }
+  .minibar-coins { font-weight: 800; font-size: var(--fs-2); white-space: nowrap; }
+
+  .day-progress { margin: 0 0 16px; }
+  .day-progress[hidden] { display: none; }
+  .day-progress-text { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .day-progress-count { font-size: var(--fs-4); font-weight: 800; color: var(--gold-light); text-shadow: 2px 2px 0 var(--wood-dark); }
+  .day-progress-note { font-size: var(--fs-2); font-weight: 800; color: #DCE8DA; }
+  .day-progress-bar { display: flex; gap: 4px; }
+  .day-progress-bar .seg {
+    flex: 1;
+    height: 18px;
+    border-radius: 6px;
+    background: rgba(242, 232, 210, 0.22);
+    border: 2px solid var(--wood-dark);
+    transition: background-color 0.25s ease;
+  }
+  .day-progress-bar .seg.done { background: var(--gold); }
+  .day-progress.perfect .day-progress-count,
+  .day-progress.perfect .day-progress-note { color: var(--gold-light); }
+  .day-progress.perfect .seg { background: var(--gold-light); }
+
+  #confettiLayer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
+  .confetti {
+    position: absolute;
+    top: -16px;
+    width: 10px;
+    height: 14px;
+    border-radius: 2px;
+    animation: confetti-fall 1.5s ease-in forwards;
+  }
+  @keyframes confetti-fall {
+    to { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: 0.9; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .confetti { display: none; }
+    .xp-bar-inner { transition: none; }
+  }
 
   .storage-warning {
     background: #F3D9CE;
@@ -289,7 +345,7 @@
     border: 3px solid var(--ember);
     border-radius: 10px;
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: var(--fs-2);
     font-weight: 800;
     margin-bottom: 14px;
   }
@@ -298,12 +354,12 @@
   .reward-btn.confirming { background: var(--ember); box-shadow: 0 3px 0 #7a3121; }
 
   /* Copia de seguridad */
-  .backup-help { font-size: 12px; color: var(--wood); margin: 8px 0; }
+  .backup-help { font-size: var(--fs-2); color: var(--wood); margin: 8px 0; }
   .backup-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
   .backup-btn {
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
-    font-size: 13px;
+    font-size: var(--fs-2);
     padding: 9px 12px;
     border-radius: 8px;
     border: 2px solid var(--wood-dark);
@@ -318,54 +374,54 @@
     border: 2px solid var(--ember);
     border-radius: 8px;
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: var(--fs-1);
     font-weight: 700;
     margin-top: 8px;
   }
   #backupText {
     width: 100%;
     font-family: monospace;
-    font-size: 11px;
+    font-size: var(--fs-1);
     border: 2px solid var(--wood);
     border-radius: 6px;
     padding: 6px;
     margin-top: 6px;
   }
-  .backup-status { font-size: 12px; font-weight: 700; color: var(--forest-dark); margin-top: 6px; min-height: 16px; }
+  .backup-status { font-size: var(--fs-1); font-weight: 700; color: var(--forest-dark); margin-top: 6px; min-height: 16px; }
   details.backup-text { margin-top: 8px; }
-  details.backup-text summary { font-size: 12px; font-weight: 700; cursor: pointer; }
+  details.backup-text summary { font-size: var(--fs-2); font-weight: 700; cursor: pointer; }
 
-  .stats { flex: 1; min-width: 200px; }
+  .stats { min-width: 0; }
 
-  .name-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .hero-name { font-weight: 800; font-size: 20px; }
-  .hero-class { font-size: 13px; color: var(--wood); font-weight: 700; }
+  .name-line { display: flex; align-items: baseline; gap: 6px 12px; flex-wrap: wrap; }
+  .hero-name { font-weight: 800; font-size: var(--fs-5); line-height: 1.1; }
+  .hero-class { font-size: var(--fs-3); color: var(--wood); font-weight: 700; }
 
   .level-tag {
     font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
+    font-size: var(--fs-pixel);
     background: var(--wood-dark);
     color: var(--gold-light);
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 6px;
   }
 
   .title-badge {
-    font-size: 12px;
+    font-size: var(--fs-2);
     font-weight: 800;
     color: var(--forest-dark);
     background: #DCE8DA;
     border: 2px solid var(--forest-dark);
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 3px 10px;
   }
 
   .xp-bar-outer {
-    margin-top: 8px;
+    margin-top: 12px;
     background: var(--parchment-dark);
-    border: 2px solid var(--wood-dark);
-    border-radius: 8px;
-    height: 18px;
+    border: 3px solid var(--wood-dark);
+    border-radius: 10px;
+    height: 26px;
     overflow: hidden;
   }
 
@@ -376,30 +432,46 @@
     transition: width 0.6s ease;
   }
 
-  .xp-caption { font-size: 12px; margin-top: 4px; color: var(--wood); font-weight: 700; }
+  .xp-caption { font-size: var(--fs-3); margin-top: 6px; color: var(--ink); font-weight: 800; }
+
+  .xp-next { font-size: var(--fs-2); margin-top: 2px; color: var(--wood); font-weight: 700; }
+
+  .coin-plaque {
+    background: var(--gold-light);
+    border: 3px solid var(--wood-dark);
+    border-radius: 14px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 150px;
+    box-shadow: 0 4px 0 var(--paper-shadow);
+  }
 
   .coin-count {
-    font-weight: 800;
-    font-size: 15px;
+    font-weight: 800;    font-size: var(--fs-5);
+    line-height: 1.1;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
     white-space: nowrap;
   }
 
+  .coin-sub { font-size: var(--fs-1); font-weight: 700; color: var(--wood-dark); margin-top: 4px; line-height: 1.3; }
+
   .streak-line {
-    margin-top: 12px;
-    font-size: 12px;
+    margin-top: 18px;
+    font-size: var(--fs-2);
     font-weight: 700;
     color: var(--wood);
     display: flex;
     align-items: center;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 6px 10px;
   }
 
-  .streak-dots { display: flex; gap: 4px; }
+  .streak-dots { display: flex; gap: 6px; }
   .streak-dot {
-    width: 12px; height: 12px; border-radius: 50%;
+    width: 18px; height: 18px; border-radius: 50%;
     background: var(--parchment-dark);
     border: 2px solid var(--wood-dark);
   }
@@ -408,16 +480,17 @@
   .board-heading { margin: 26px 0 12px; text-align: center; }
   .board-heading h2 {
     font-family: 'Press Start 2P', monospace;
-    font-size: 12px;
+    font-size: var(--fs-pixel);
+    line-height: 1.4;
     color: var(--gold-light);
     text-shadow: 2px 2px 0 var(--wood-dark);
     margin: 0;
   }
   .board-heading p {
     color: #DCE8DA;
-    font-size: 12px;
+    font-size: var(--fs-2);
     margin: 6px 0 0;
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
   .quests { display: grid; gap: 12px; }
@@ -436,14 +509,14 @@
   .quest-card.done { background: #DCE8DA; border-color: var(--forest-dark); }
   .quest-card.epic { border-color: var(--ember); }
 
-  .quest-icon { font-size: 24px; width: 36px; text-align: center; flex-shrink: 0; }
+  .quest-icon { font-size: var(--fs-5); width: 36px; text-align: center; flex-shrink: 0; }
   .quest-info { flex: 1; min-width: 0; }
-  .quest-name { font-weight: 800; font-size: 15px; }
+  .quest-name { font-weight: 800; font-size: var(--fs-3); }
   .quest-name.done { text-decoration: line-through; color: var(--forest-dark); }
-  .quest-desc { font-size: 12px; color: var(--wood); margin-top: 2px; }
+  .quest-desc { font-size: var(--fs-2); color: var(--wood); margin-top: 2px; }
 
   .quest-meta {
-    font-size: 12px;
+    font-size: var(--fs-2);
     color: var(--wood);
     margin-top: 4px;
     display: flex;
@@ -463,7 +536,7 @@
   .quest-btn {
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
-    font-size: 13px;
+    font-size: var(--fs-2);
     border: none;
     border-radius: 8px;
     padding: 10px 14px;
@@ -479,7 +552,7 @@
   .empty-note {
     text-align: center;
     color: #DCE8DA;
-    font-size: 13px;
+    font-size: var(--fs-2);
     opacity: 0.8;
     padding: 10px;
   }
@@ -496,15 +569,15 @@
     gap: 14px;
     box-shadow: 0 5px 0 var(--paper-shadow);
   }
-  .reward-icon { font-size: 24px; width: 36px; text-align: center; }
+  .reward-icon { font-size: var(--fs-5); width: 36px; text-align: center; }
   .reward-info { flex: 1; }
-  .reward-name { font-weight: 800; font-size: 15px; }
-  .reward-desc { font-size: 12px; color: var(--wood); margin-top: 2px; }
-  .reward-cost { font-size: 12px; font-weight: 800; color: var(--sky); margin-top: 4px; }
+  .reward-name { font-weight: 800; font-size: var(--fs-3); }
+  .reward-desc { font-size: var(--fs-2); color: var(--wood); margin-top: 2px; }
+  .reward-cost { font-size: var(--fs-2); font-weight: 800; color: var(--sky); margin-top: 4px; }
   .reward-btn {
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
-    font-size: 13px;
+    font-size: var(--fs-2);
     border: none;
     border-radius: 8px;
     padding: 10px 14px;
@@ -522,7 +595,7 @@
     border: 2px dashed #DCE8DA;
     border-radius: 10px;
     padding: 10px 14px;
-    font-size: 12px;
+    font-size: var(--fs-2);
     color: #DCE8DA;
   }
   .history strong { color: var(--gold-light); }
@@ -539,14 +612,14 @@
   details.levels summary {
     cursor: pointer;
     font-weight: 800;
-    font-size: 14px;
+    font-size: var(--fs-3);
     color: var(--wood-dark);
   }
-  table.level-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  table.level-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: var(--fs-2); }
   table.level-table th, table.level-table td { border-bottom: 1px solid var(--parchment-dark); padding: 6px 4px; text-align: left; }
   table.level-table th { color: var(--wood); }
 
-  footer.note { text-align: center; color: #DCE8DA; font-size: 12px; margin-top: 30px; opacity: 0.8; }
+  footer.note { text-align: center; color: #DCE8DA; font-size: var(--fs-1); margin-top: 30px; opacity: 0.8; }
 
   .levelup-toast {
     position: fixed;
@@ -556,21 +629,52 @@
     background: var(--gold);
     color: var(--wood-dark);
     font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
+    font-size: var(--fs-pixel);
     padding: 14px 18px;
     border-radius: 10px;
     border: 3px solid var(--wood-dark);
     box-shadow: 0 8px 20px rgba(0,0,0,0.35);
     opacity: 0;
-    transition: all 0.35s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease;
     z-index: 10;
     text-align: center;
   }
   .levelup-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  @media (max-width: 480px) {
-    h1 { font-size: 11px; }
-    .board-heading h2 { font-size: 10px; }
+  @media (max-width: 600px) {
+    header.sheet { padding: 18px 18px; }
+    /* Ficha compacta: avatar junto al nombre y nivel; XP y monedas a todo el ancho */
+    .character-row { grid-template-columns: auto 1fr; gap: 8px 16px; margin-top: 14px; }
+    .stats { display: contents; }
+    .avatar-wrap { grid-row: 1 / span 2; }
+    .avatar { width: 76px; height: 76px; font-size: 40px; }
+    .name-line:nth-child(1) { align-self: end; }
+    .name-line:nth-child(2) { align-self: start; }
+    .xp-bar-outer, .xp-caption, .xp-next { grid-column: 1 / -1; }
+    .xp-bar-outer { margin-top: 6px; }
+    .xp-caption { margin-top: 2px; }
+    .coin-plaque { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 14px; }
+    .coin-plaque .coin-sub { margin-top: 0; text-align: left; }
+    .streak-line { margin-top: 12px; }
+    .streak-dots { gap: 5px; }
+    .streak-dot { width: 15px; height: 15px; }
+    .streak-hint, .wordmark-sub { display: none; }
+    .title-row { flex-wrap: nowrap; }
+
+    /* Barra de héroes más baja: nombre, nivel y monedas en dos líneas + barra de XP */
+    .sidebar h3 { display: none; }
+    .mini-title { display: none; }
+    .mini-card { padding: 6px 8px; gap: 8px; }
+    .mini-avatar { width: 34px; height: 34px; font-size: var(--fs-4); }
+    .mini-info { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; }
+    .mini-name { flex: 1 0 100%; }
+    .mini-level { order: 1; }
+    .mini-coins { order: 2; margin-top: 0; }
+    .mini-xp-outer { order: 3; flex: 1 0 100%; margin-top: 3px; }
+
+    /* Título de sección más ajustado para que las misiones asomen antes */
+    .board-heading { margin: 14px 0 8px; }
+    .board-heading p { display: none; }
   }
 </style>
 </head>
@@ -595,7 +699,7 @@
   <div class="storage-warning" id="storageWarning" hidden>⚠️ No se puede guardar el progreso en este navegador. Lo que hagas se perderá al cerrar o recargar la página.</div>
   <header class="sheet">
     <div class="title-row">
-      <h1>🏰 Quest Kids<br>RPG de Hábitos</h1>
+      <h1>🏰 Quest Kids<span class="wordmark-sub">RPG de hábitos</span></h1>
       <select id="heroSelect"></select>
     </div>
     <div class="character-row">
@@ -614,10 +718,11 @@
         </div>
         <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar"></div></div>
         <div class="xp-caption" id="xpCaption">0 / 100 XP</div>
+        <div class="xp-next" id="xpNext"></div>
       </div>
-      <div class="coin-count">
-        🪙 <span id="coinCount">0</span>
-        <span style="font-size:11px; font-weight:700; color: var(--wood); white-space:normal;">disponibles<br>(<span id="totalCoinsEarned">0</span> ganadas en total)</span>
+      <div class="coin-plaque">
+        <div class="coin-count">🪙 <span id="coinCount">0</span></div>
+        <div class="coin-sub">disponibles<br>(<span id="totalCoinsEarned">0</span> ganadas en total)</div>
       </div>
     </div>
     <div class="hero-editor-panel" id="heroEditorPanel" hidden>
@@ -629,7 +734,7 @@
       </label>
     </div>
     <div class="streak-line">
-      Racha semanal (días perfectos):
+      <span>Racha semanal<span class="streak-hint"> (días perfectos)</span>:</span>
       <div class="streak-dots" id="streakDots"></div>
     </div>
   </header>
@@ -644,6 +749,13 @@
     <div class="board-heading">
       <h2>⚔️ MISIONES DE HOY</h2>
       <p>Hábitos y tareas recurrentes — se reinician cada día</p>
+    </div>
+    <div class="day-progress" id="dayProgress" hidden>
+      <div class="day-progress-text">
+        <span class="day-progress-count" id="dayCount">Hoy 0 de 0</span>
+        <span class="day-progress-note" id="dayNote"></span>
+      </div>
+      <div class="day-progress-bar" id="dayBar" role="progressbar" aria-label="Misiones de hoy" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
     </div>
     <div class="quests" id="dailyQuestList"></div>
   </div>
@@ -682,7 +794,7 @@
       <tr><td>⭐⭐ Normal</td><td>+25 XP</td><td>+15 🪙</td></tr>
       <tr><td>⭐⭐⭐ Épica</td><td>+50 XP</td><td>+30 🪙</td></tr>
     </table>
-    <p style="font-size:12px; color: var(--wood); margin-top:8px;">🏆 Bonus semanal: completar TODAS las misiones diarias 7 días seguidos otorga +100 XP y +50 🪙 extra.</p>
+    <p style="font-size: var(--fs-2); color: var(--wood); margin-top:8px;">🏆 Bonus semanal: completar TODAS las misiones diarias 7 días seguidos otorga +100 XP y +50 🪙 extra.</p>
   </details>
 
   <details class="levels backup" id="backupPanel">
@@ -716,6 +828,7 @@
 </div>
 
 <div class="levelup-toast" id="levelupToast">¡SUBISTE DE NIVEL!</div>
+<div id="confettiLayer" aria-hidden="true"></div>
 
 <script>
   const STORAGE_KEY = 'questKidsRPG';
@@ -783,7 +896,6 @@
     { id: 'r5', icon: '🌙', name: 'Acostarse 30 min más tarde', desc: 'Un día de fin de semana.', cost: 40, tipo: '🎁 Premio real' },
     { id: 'r6', icon: '🎬', name: 'Elegir la peli del viernes', desc: 'Tú eliges la película o serie familiar.', cost: 50, tipo: '🎁 Premio real' },
   ];
-
   function todayKey() {
     const d = new Date();
     const y = d.getFullYear();
@@ -1087,6 +1199,9 @@
     document.getElementById('titleBadge').textContent = info.title;
     document.getElementById('xpBar').style.width = pct + '%';
     document.getElementById('xpCaption').textContent = hero.xp + (info.next ? (' / ' + info.next.xp + ' XP') : ' XP (nivel máximo)');
+    document.getElementById('xpNext').textContent = info.next
+      ? 'Te faltan ' + (info.next.xp - hero.xp) + ' XP para ser ' + info.next.title
+      : '¡Has llegado al nivel máximo!';
     document.getElementById('coinCount').textContent = availableCoins(hero);
     document.getElementById('totalCoinsEarned').textContent = hero.totalCoinsEarned;
 
@@ -1099,6 +1214,7 @@
     }
 
     renderDailyQuests(hero);
+    renderDayProgress(hero);
     renderSpecialQuests(hero);
     renderRewards(hero);
     renderHistory(hero);
@@ -1218,12 +1334,54 @@
         '<div class="mini-avatar">' + esc(hero.icon || CLASS_ICON[hero.clase] || '🧙') + '</div>' +
         '<div class="mini-info">' +
           '<div class="mini-name">' + esc(hero.name) + '</div>' +
-          '<div class="mini-level">Nivel ' + info.level + ' · ' + info.title + '</div>' +
+          '<div class="mini-level">Nivel ' + info.level + '<span class="mini-title"> · ' + info.title + '</span></div>' +
           '<div class="mini-xp-outer"><div class="mini-xp-inner" style="width:' + pct + '%"></div></div>' +
           '<div class="mini-coins">🪙 ' + availableCoins(hero) + '</div>' +
         '</div>';
       box.appendChild(card);
     });
+  }
+
+  // Misiones diarias hechas hoy por un héroe (las épicas no cuentan, igual que en el día perfecto).
+  function dailyProgress(hero, heroId) {
+    const list = missionsForHero(DAILY_MISSIONS, heroId);
+    const done = hero.lastDay === todayKey() ? list.filter(m => hero.completedToday[m.id]).length : 0;    return { done, total: list.length };
+  }
+
+  function renderDayProgress(hero) {
+    const { done, total } = dailyProgress(hero, data.activeHero);
+    const box = document.getElementById('dayProgress');
+    box.hidden = total === 0;
+    if (!total) return;
+    const perfect = done === total;
+    box.classList.toggle('perfect', perfect);
+    document.getElementById('dayCount').textContent = 'Hoy ' + done + ' de ' + total;
+    document.getElementById('dayNote').textContent = perfect
+      ? '¡Día perfecto! 🌟'
+      : (total - done === 1 ? 'Solo falta 1' : 'Faltan ' + (total - done));
+    const bar = document.getElementById('dayBar');
+    bar.setAttribute('aria-valuemax', String(total));
+    bar.setAttribute('aria-valuenow', String(done));
+    let html = '';
+    for (let i = 0; i < total; i++) html += '<span class="seg' + (i < done ? ' done' : '') + '"></span>';
+    bar.innerHTML = html;
+  }
+
+  function burstConfetti() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const layer = document.getElementById('confettiLayer');
+    const colors = ['#C9A227', '#E8C766', '#3F6C4C', '#B24A34', '#3B6E8F'];
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('span');
+      p.className = 'confetti';
+      p.style.left = (8 + Math.random() * 84) + 'vw';
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty('--dx', Math.round(Math.random() * 200 - 100) + 'px');
+      p.style.setProperty('--rot', Math.round(Math.random() * 720 - 360) + 'deg');
+      p.style.animationDelay = (Math.random() * 0.25).toFixed(2) + 's';
+      layer.appendChild(p);
+      setTimeout(() => p.remove(), 2000);
+    }
   }
 
   function completeDaily(id) {
@@ -1232,13 +1390,20 @@
     const m = DAILY_MISSIONS.find(x => x.id === id);
     if (!m) return;
     const beforeLevel = levelInfo(hero.xp).level;
+    const progressBefore = dailyProgress(hero, data.activeHero);
+    const bonusBefore = hero.bonusAwardedForWeek;
     hero.xp += m.xp;
     hero.totalCoinsEarned += m.coins;
     hero.completedToday[id] = true;
     registerPerfectDayIfNeeded(data.activeHero);
     const afterLevel = levelInfo(hero.xp).level;
+    const progressAfter = dailyProgress(hero, data.activeHero);
+    const justPerfected = progressAfter.total > 0 && progressAfter.done === progressAfter.total && progressBefore.done < progressBefore.total;
     render();
+    // Un solo aviso: subida de nivel > bonus semanal (ya lo muestra render) > día perfecto.
     if (afterLevel > beforeLevel) showToast('¡SUBISTE A NIVEL ' + afterLevel + '!');
+    else if (justPerfected && !(hero.bonusAwardedForWeek && !bonusBefore)) showToast('¡DÍA PERFECTO!');
+    if (justPerfected) burstConfetti();
   }
 
   function undoDaily(id) {
@@ -1304,11 +1469,13 @@
     showToast('¡Canjeado: ' + r.name + ' (-' + r.cost + ' 🪙)!');
   }
 
+  let toastTimer = null;
   function showToast(text) {
     const toast = document.getElementById('levelupToast');
     toast.textContent = text;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2200);
+    clearTimeout(toastTimer);   // un aviso nuevo no debe cortarse por el temporizador del anterior
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
   document.querySelector('.tabs').addEventListener('click', e => {
