@@ -9,10 +9,13 @@ El proyecto nació como una réplica funcional de una página de Notion ("Quest 
 - **4 héroes** con nombre propio y **profesión e icono configurables** (botón ✏️ en la ficha).
 - **Sistema de niveles** basado en XP acumulada, con título narrativo por nivel (Aprendiz → Aventurero → Veterano → Héroe → Campeón → Leyenda).
 - **Misiones diarias**, que se reinician automáticamente cada día.
+- **Contador «Hoy X de N»** con una barra de segmentos por héroe, y un momento de celebración (aviso y confeti) al completar todas las misiones del día. El confeti se desactiva si el sistema pide «reducir movimiento».
 - **Misiones épicas**, cada una con su propia frecuencia de reinicio: **diaria** o **semanal**.
 - **Botón de deshacer** en cualquier misión completada, con confirmación de doble toque (sin diálogos nativos del navegador, para funcionar también dentro de vistas previas en sandbox). Si el deshacer hace que deje de cumplirse la semana perfecta, también se retira el bonus semanal.
 - **Tienda de recompensas** con confirmación de doble toque al canjear e historial de canjes.
 - **Racha semanal**: completar todas las misiones diarias los 7 días de la semana otorga un bonus de +100 XP y +50 monedas. Un día sin completar rompe la racha.
+- **Ficha de héroe como foco visual:** avatar grande, nombre a 30 px, barra de XP gruesa, aviso «Te faltan X XP para ser …» y placa de monedas. En móvil se compacta para que las misiones sigan asomando en la primera pantalla.
+- **Escala tipográfica** de 5 tamaños (13, 14, 16, 20 y 30 px) más la fuente pixel a 14 px solo en títulos; ningún texto baja de 13 px.
 - **Pestañas** (Diarias / Épicas / Tienda) y **mini-barra fija** con nivel, XP y monedas que aparece al hacer scroll.
 - **Barra de héroes** con una miniatura de cada jugador, para cambiar de héroe con un toque (rejilla 2×2 en móvil).
 - **Copia de seguridad**: descarga/restauración del progreso en JSON (o como texto copiable), con validación y confirmación antes de reemplazar datos.
@@ -45,6 +48,18 @@ Está en estudio una versión con almacenamiento centralizado en red local (serv
 | 3 | Detección de días saltados en el cálculo de racha semanal | ✅ Hecho |
 | 4 | PIN o bloqueo de adulto para la tienda de recompensas y la edición de misiones | ⏳ Pendiente |
 | 5 | Panel de edición de misiones y recompensas (actualmente fijas en el código) | ⏳ Pendiente |
+| 6 | Adaptación a tablet (ver detalle abajo) | ⏳ Pendiente |
+
+### Detalle del punto 6: adaptación a tablet
+
+Revisión hecha con Chromium emulando iPad, iPad Air y una tablet Android (vertical y horizontal). La app funciona sin desbordes, pero no está optimizada para tablet. Mejoras previstas:
+
+- **Zonas táctiles de al menos 48 px.** Hoy «Completar» y «Canjear» miden unos 35 px de alto y el botón ✏️ 28×28 px (la recomendación de Apple y Google es 44–48 px).
+- **Textos más grandes en pantallas anchas.** Hay 24 reglas CSS con tamaños de 9 a 12 px (descripciones, nivel de las miniaturas, etiquetas).
+- **Aprovechar el ancho en tablet horizontal:** misiones en dos columnas (ahora hay una sola de 780 px con amplios márgenes). Solo existen dos puntos de corte (880 px y 480 px).
+- **`touch-action: manipulation`** en los botones, para evitar que el zoom por doble toque interfiera con la confirmación de doble toque (deshacer y canjear). Es una hipótesis para Safari de iPadOS que no se ha podido comprobar.
+- **Hover solo con ratón:** la regla `:hover` de las miniaturas puede quedarse «pegada» tras un toque.
+- **Pendiente de probar en dispositivos reales:** Safari en iPhone/iPad y navegadores de tablets físicas (hasta ahora solo hay pruebas en emulación).
 
 Limitaciones conocidas: los canjes de la tienda no se pueden anular desde la interfaz, y cualquiera con acceso a la app puede completar misiones, canjear premios o restaurar copias (hasta que se implemente el punto 4).
 
